@@ -2026,7 +2026,7 @@
     // Enregistrement du service worker pour la PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('service-worker.js')
+            navigator.serviceWorker.register('/hitman-social/service-worker.js')
                 .then(reg => {
                     console.log('Service worker enregistré avec le scope :', reg.scope);
                 })

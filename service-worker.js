@@ -1,11 +1,11 @@
 const CACHE_NAME = 'hitman-social-v1';
 const ASSETS_TO_CACHE = [
-  './',
-  './contract-game.html',
-  './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png'
-];
+    '/hitman-social/',
+    '/hitman-social/contract-game.html',
+    '/hitman-social/manifest.webmanifest',
+    '/hitman-social/icon-192.png',
+    '/hitman-social/icon-512.png'
+  ];  
 
 // Installation : on pré-cache les fichiers critiques
 self.addEventListener('install', (event) => {
