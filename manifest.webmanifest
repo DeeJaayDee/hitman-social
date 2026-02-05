@@ -2,7 +2,7 @@
     "name": "Hitman Social",
     "short_name": "Hitman",
     "description": "Jeu d'enquête sociale sur un seul téléphone.",
-    "start_url": "/hitman-social/contract-game.html",
+    "start_url": "/hitman-social/",
     "display": "standalone",
     "background_color": "#020617",
     "theme_color": "#020617",

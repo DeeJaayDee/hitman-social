@@ -1,7 +1,7 @@
 const CACHE_NAME = 'hitman-social-v1';
 const ASSETS_TO_CACHE = [
     '/hitman-social/',
-    '/hitman-social/contract-game.html',
+    '/hitman-social/index.html',
     '/hitman-social/manifest.webmanifest',
     '/hitman-social/icon-192.png',
     '/hitman-social/icon-512.png'
@@ -51,7 +51,7 @@ self.addEventListener('fetch', (event) => {
         });
       }).catch(() => {
         // Optionnel : renvoyer une page fallback si hors ligne et pas dans le cache
-        return caches.match('./contract-game.html');
+        return caches.match('./index.html');
       });
     })
   );

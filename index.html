@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Jeu Hitman - Prototype</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#020617">
+    <style>
+        :root {
+            --bg: #050816;
+            --bg-alt: #0f172a;
+            --card: #020617;
+            --accent: #38bdf8;
+            --accent-soft: rgba(56, 189, 248, 0.15);
+            --text: #e5e7eb;
+            --text-muted: #9ca3af;
+            --danger: #f97373;
+            --hitman: #facc15;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-soft: 0 18px 35px rgba(15, 23, 42, 0.8);
+            --shadow-sm: 0 8px 16px rgba(15, 23, 42, 0.65);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                sans-serif;
+            background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        header {
+            background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(8,47,73,0.96));
+            border-radius: 24px;
+            padding: 14px 18px 12px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 12px;
+            z-index: 10;
+            backdrop-filter: blur(16px);
+        }
+
+        .title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .title {
+            font-size: 1.15rem;
+            font-weight: 650;
+            letter-spacing: 0.03em;
+        }
+
+        .subtitle {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .badge-beta {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            background: radial-gradient(circle at top left, rgba(56,189,248,0.35), transparent 55%);
+            color: var(--text);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .card {
+            background: radial-gradient(circle at top left, rgba(56,189,248,0.06), transparent 55%),
+                        linear-gradient(145deg, rgba(15,23,42,0.96), rgba(2,6,23,0.96));
+            border-radius: var(--radius-lg);
+            padding: 18px 16px 16px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(30, 64, 175, 0.7);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .input-row {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 0.86rem;
+            color: var(--text-muted);
+        }
+
+        select,
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(15, 23, 42, 0.95);
+            color: var(--text);
+            padding: 9px 11px;
+            font-size: 0.92rem;
+            outline: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        select:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+        }
+
+        .players-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .player-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .player-index {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            background: radial-gradient(circle at top, rgba(148,163,184,0.5), transparent 55%);
+            flex-shrink: 0;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            font-weight: 550;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: radial-gradient(circle at top, #38bdf8, #0ea5e9);
+            color: #0b1120;
+            box-shadow: 0 12px 24px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+            box-shadow: 0 6px 12px rgba(56, 189, 248, 0.5);
+        }
+
+        .btn-ghost {
+            background: rgba(15, 23, 42, 0.85);
+            color: var(--text-muted);
+            border: 1px solid rgba(148, 163, 184, 0.5);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .pill-hitman {
+            background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.45), transparent 60%);
+            border: 1px solid rgba(250, 204, 21, 0.9);
+            color: #facc15;
+        }
+
+        .pill-civil {
+            background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.5), transparent 60%);
+            border: 1px solid rgba(34, 197, 94, 0.9);
+            color: #bbf7d0;
+        }
+
+        .pass-instruction {
+            font-size: 0.9rem;
+        }
+
+        .pass-highlight {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .profile-card {
+            margin-top: 6px;
+            border-radius: var(--radius-md);
+            background: rgba(15, 23, 42, 0.98);
+            padding: 10px 11px;
+            border: 1px solid rgba(30, 64, 175, 0.8);
+        }
+
+        .profile-title {
+            font-size: 0.86rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .profile-list {
+            list-style: none;
+            padding: 0;
+            margin: 4px 0 0 0;
+            font-size: 0.86rem;
+        }
+
+        .profile-list li {
+            margin-bottom: 2px;
+        }
+
+        .contract-tagline {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .contract-highlight {
+            font-weight: 600;
+            color: var(--hitman);
+        }
+
+        .summary-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .summary-badge {
+            font-size: 0.74rem;
+            border-radius: 999px;
+            padding: 3px 8px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            color: var(--text-muted);
+        }
+
+        .footer-note {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 10px 12px;
+                border-radius: 18px;
+            }
+            .card {
+                padding: 14px 12px 12px;
+                border-radius: 16px;
+            }
+        }
+
+        /* ========== ANIMATIONS GLOBALES ========== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseSoft {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56,189,248,0.4); }
+            50% { transform: scale(1.03); box-shadow: 0 0 0 6px rgba(56,189,248,0); }
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        .screen.active .card {
+            animation: fadeInUp 0.35s ease-out;
+        }
+
+        /* Timer rond en haut à droite pendant le mini-jeu */
+        .timer-container {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(15,23,42,0.98);
+            border: 2px solid var(--accent);
+            border-radius: 999px;
+            width: 56px;
+            height: 56px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+            z-index: 200;
+            animation: pulseSoft 1.6s infinite;
+        }
+
+        .timer-container.urgent {
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: shake 0.6s infinite;
+        }
+
+        /* Carte d'indice animée */
+        .clue-card {
+            background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(15,23,42,0.9));
+            border: 1px solid rgba(56,189,248,0.6);
+            border-radius: var(--radius-md);
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            animation: fadeInUp 0.25s ease-out;
+        }
+
+        /* Boutons un peu plus vivants */
+        .btn-primary {
+            transition: transform 0.08s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .memory-card {
+            transition: transform 0.08s ease-out, box-shadow 0.12s ease-out, background 0.1s;
+        }
+
+        .memory-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(15,23,42,0.7);
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+    <!-- Timer de tour (mini-jeu) -->
+    <div id="turnTimer" class="timer-container">
+        <span id="turnTimerValue">45</span>
+    </div>
+    <header>
+        <div class="title-block">
+            <div class="title">Hitman Social</div>
+            <div class="subtitle">Prototype de distribution des rôles</div>
+        </div>
+        <div class="badge-beta">Prototype</div>
+    </header>
+
+    <main>
+        <!-- Écran 1 : configuration initiale -->
+        <section id="screen-setup" class="screen active">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Nouvelle partie</div>
+                        <div class="card-subtitle">
+                            Choisis le nombre de joueurs, puis leurs noms.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <label for="playerCount">Nombre de joueurs (3 à 8)</label>
+                    <select id="playerCount">
+                        <option value="3">3 joueurs</option>
+                        <option value="4">4 joueurs</option>
+                        <option value="5">5 joueurs</option>
+                        <option value="6">6 joueurs</option>
+                        <option value="7">7 joueurs</option>
+                        <option value="8">8 joueurs</option>
+                    </select>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-primary btn-full" id="btnSetupNext">
+                        Continuer
+                    </button>
+                </div>
+                <p class="hint">
+                    Le jeu se joue sur <strong>un seul téléphone</strong> que vous
+                    passerez de joueur en joueur.
+                </p>
+            </div>
+        </section>
+
+        <!-- Écran 2 : saisie des noms -->
+        <section id="screen-names" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Noms des joueurs</div>
+                        <div class="card-subtitle">
+                            Facultatif, mais conseillé pour s'y retrouver.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="playersContainer" class="players-grid"></div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" id="btnNamesBack">Retour</button>
+                    <button class="btn btn-primary" id="btnStartGame">
+                        Lancer la partie
+                    </button>
+                </div>
+
+                <p class="hint">
+                    Si tu laisses un nom vide, il sera remplacé par "Joueur X".
+                </p>
+            </div>
+        </section>
+
+        <!-- Écran 3 : passer le téléphone -->
+        <section id="screen-pass" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Passer le téléphone</div>
+                        <div class="card-subtitle">
+                            Chaque joueur va regarder son rôle à tour de rôle.
+                        </div>
+                    </div>
+                </div>
+
+                <p class="pass-instruction">
+                    Passe maintenant le téléphone à
+                    <span class="pass-highlight" id="passPlayerName"></span>.
+                    Lorsque la personne est prête, appuie sur le bouton ci-dessous.
+                </p>
+
+                <div class="btn-row">
+                    <button class="btn btn-primary btn-full" id="btnRevealForPlayer">
+                        C'est bon, je suis prêt
+                    </button>
+                </div>
+
+                <p class="hint">
+                    Les autres joueurs ne doivent pas regarder l'écran pendant cette
+                    étape.
+                </p>
+            </div>
+        </section>
+
+        <!-- Écran 4 : vue du joueur (rôle + profil) -->
+        <section id="screen-player-view" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title" id="playerViewTitle"></div>
+                        <div class="card-subtitle" id="playerViewSubtitle"></div>
+                    </div>
+                    <div id="rolePill"></div>
+                </div>
+
+                <div id="playerViewContent"></div>
+
+                <div class="btn-row" style="margin-top: 14px;">
+                    <button class="btn btn-primary btn-full" id="btnPlayerDone">
+                        J'ai compris, passer le téléphone
+                    </button>
+                </div>
+
+                <p class="hint">
+                    Ne montre pas ces informations aux autres joueurs.
+                </p>
+            </div>
+        </section>
+
+        <!-- Écran 5 : résumé fin de distribution -->
+        <section id="screen-summary" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Distribution terminée</div>
+                        <div class="card-subtitle">
+                            Tous les rôles et profils ont été attribués.
+                        </div>
+                    </div>
+                </div>
+
+                <p>
+                    Vous pouvez maintenant démarrer la partie "en vrai" avec ce
+                    prototype : un joueur est le tueur, les autres sont des civils.
+                </p>
+
+                <div class="profile-card">
+                    <div class="profile-title">Rappel (pour les joueurs)</div>
+                    <ul class="profile-list">
+                        <li>• <strong>Un seul tueur</strong> dans la partie.</li>
+                        <li>• Les civils ne connaissent pas l'identité du tueur.</li>
+                        <li>• Le tueur a reçu un <strong>contrat partiel</strong> sur sa cible.</li>
+                    </ul>
+                </div>
+
+                <div class="summary-badges" id="summaryBadges"></div>
+
+                <div class="btn-row" style="margin-top: 14px;">
+                    <button class="btn btn-ghost btn-full" id="btnRestart">
+                        Recommencer une nouvelle partie
+                    </button>
+                </div>
+            </div>
+            <div class="footer-note">
+                Version prototype : prochainement, ajout des phases d'enquête,
+                indices, éliminations et votes.
+            </div>
+        </section>
+        <!-- Écran 6 : Phase Investigation (passage du téléphone) -->
+        <section id="screen-investigation" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Round <span id="roundNumber">1</span> - Investigation</div>
+                        <div class="card-subtitle">Passe le téléphone au joueur suivant</div>
+                    </div>
+                </div>
+                
+                <p class="pass-instruction">
+                    C'est au tour de <span class="pass-highlight" id="investigationPlayerName"></span>.
+                    <br><br>
+                    <strong>Règle :</strong> Prends le téléphone, regarde ton profil, puis joue un mini-jeu pour gagner un indice.
+                </p>
+                
+                <div class="btn-row">
+                    <button class="btn btn-primary btn-full" id="btnStartTurn">
+                        C'est mon tour, je prends le téléphone
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Écran 7 : Action du joueur (profil + mini-jeu) -->
+        <section id="screen-player-turn" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title" id="turnPlayerTitle"></div>
+                        <div class="card-subtitle">Ton profil et ton action</div>
+                    </div>
+                </div>
+                
+                <div id="turnPlayerProfile" class="profile-card" style="margin-bottom: 12px;">
+                    <!-- Profil injecté ici -->
+                </div>
+                
+                <div id="playerClues" class="profile-card" style="margin-bottom: 10px; display:none;">
+                    <div class="profile-title">Tes indices précédents</div>
+                    <div id="playerCluesList">
+                        <!-- Indices pour ce joueur -->
+                    </div>
+                </div>
+                
+                <div id="minigameContainer" style="display: none;">
+                    <div class="card" style="border-color: rgba(250,204,21,0.5);">
+                        <div class="card-title" style="font-size: 0.9rem; margin-bottom: 8px;">🎮 Mini-jeu pour gagner un indice</div>
+                        <div id="minigameContent"></div>
+                    </div>
+                </div>
+                
+                <div id="clueReveal" style="display: none; margin-top: 12px;" class="profile-card">
+                    <div class="profile-title">🔍 Indice découvert</div>
+                    <p id="clueText" style="margin: 4px 0; font-size: 0.9rem;"></p>
+                </div>
+                
+                <div id="hitmanAction" style="display: none; margin-top: 12px;">
+                    <div class="card" style="border-color: rgba(249,115,115,0.6); background: radial-gradient(circle at top left, rgba(249,115,115,0.1), transparent 50%);">
+                        <div class="card-title" style="color: var(--danger); font-size: 0.9rem;">🗡️ Action du Hitman</div>
+                        <p style="font-size: 0.85rem; margin: 6px 0;">Tu peux tenter d'éliminer un joueur. Si tu te trompes, tes indices seront révélés !</p>
+                        <select id="hitmanTargetSelect" style="margin-top: 8px; margin-bottom: 8px;">
+                            <option value="">-- Choisir une cible --</option>
+                        </select>
+                        <button class="btn btn-primary" id="btnAttemptKill" style="background: var(--danger); box-shadow: 0 8px 16px rgba(249,115,115,0.4);">
+                            TENTER L'ÉLIMINATION
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="btn-row" style="margin-top: 14px;">
+                    <button class="btn btn-ghost" id="btnBackToInvestigation" style="display: none;">Retour</button>
+                    <button class="btn btn-primary btn-full" id="btnEndTurn" style="display: none;">
+                        Terminer mon tour (passer le téléphone)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Écran 8 : Journal de bord -->
+        <section id="screen-journal" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">📓 Journal de bord</div>
+                        <div class="card-subtitle">Indices collectés – discutez avant de voter</div>
+                    </div>
+                </div>
+                
+                <div id="journalEntries" style="max-height: 300px; overflow-y: auto;">
+                    <p class="hint" style="text-align: center; padding: 20px;">Aucun index pour le moment...</p>
+                </div>
+                
+                <p class="hint" style="margin-top:8px;">
+                    Prenez quelques minutes pour discuter ensemble de ces indices avant de passer au vote.
+                </p>
+                
+                <div class="btn-row" style="margin-top: 12px;">
+                    <button class="btn btn-primary btn-full" id="btnGoToVote">
+                        Passer au vote
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Écran 9 : Vote -->
+        <section id="screen-vote" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">🗳️ Phase de Vote</div>
+                        <div class="card-subtitle">Chacun vote pour qui il suspecte</div>
+                    </div>
+                </div>
+                
+                <p class="hint">Sélectionne le joueur que tu souhaites éliminer. Les votes seront révélés simultanément.</p>
+                
+                <div id="voteButtons" class="players-grid" style="margin-top: 12px;">
+                    <!-- Boutons de vote générés ici -->
+                </div>
+                
+                <div id="voteConfirmation" style="display: none; margin-top: 12px; text-align: center;">
+                    <p style="color: var(--accent); font-weight: 600;">Tu as voté pour <span id="votedPlayerName"></span></p>
+                    <p class="hint">Attends que tous les joueurs aient voté...</p>
+                </div>
+                
+                <div class="btn-row" style="margin-top: 14px;">
+                    <button class="btn btn-primary btn-full" id="btnRevealVotes" style="display: none;">
+                        Révéler les votes
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Écran 10 : Résolution du vote -->
+        <section id="screen-resolution" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">📊 Résultat du vote</div>
+                        <div class="card-subtitle" id="resolutionSubtitle"></div>
+                    </div>
+                </div>
+                
+                <div id="voteResults"></div>
+                
+                <div id="eliminationReveal" style="margin-top: 16px; display: none;">
+                    <div class="profile-card" id="eliminatedCard">
+                        <!-- Info du joueur éliminé -->
+                    </div>
+                </div>
+                
+                <div class="btn-row" style="margin-top: 16px;">
+                    <button class="btn btn-primary btn-full" id="btnNextRound">
+                        Continuer
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Écran 11 : Fin de partie -->
+        <section id="screen-end" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title" id="endTitle">Partie terminée</div>
+                        <div class="card-subtitle" id="endSubtitle"></div>
+                    </div>
+                </div>
+                
+                <div id="endContent" style="margin-top: 8px;"></div>
+                
+                <div class="btn-row" style="margin-top: 16px;">
+                    <button class="btn btn-primary btn-full" id="btnNewGame">
+                        Nouvelle partie
+                    </button>
+                </div>
+            </div>
+        </section>        
+    </main>
+</div>
+
+<script>
+(function () {
+    const genders = ["Homme", "Femme"];
+    const accessories = ["Lunettes", "Chapeau", "Boucle d'oreille", "Tatouage"];
+    const jobs = ["Scientifique", "Artiste", "Policier", "Journaliste", "Médecin"];
+    const traits = ["Calme", "Nerveux", "Mystérieux", "Extraverti"];
+
+    const state = {
+        numPlayers: 3,
+        players: [],
+        hitmanIndex: null,
+        targetIndex: null,
+        contractAttributes: [],
+        currentRevealIndex: 0,
+        
+        // NOUVEAU : gestion des rounds
+        gamePhase: 'setup', // setup, reveal, investigation, vote, resolution, end
+        currentRound: 0,
+        maxRounds: 6,
+        currentPlayerTurn: 0, // index du joueur dont c'est le tour en phase investigation
+        investigationOrder: [], // ordre aléatoire des joueurs par round
+        journal: [], // {round, player, type, content, target}
+        eliminatedPlayers: [], // indices des joueurs éliminés
+        hitmanAttempted: false, // le hitman a-t-il tenté d'éliminer ce round ?
+        hitmanSuccess: false,
+        turnTimerId: null,
+        turnTimeLeft: 45,
+        clueGivenThisTurn: false,
+        votes: {}, // playerId -> votedPlayerId
+        gameOver: false,
+        winner: null // 'hitman' ou 'civils'
+    };
+
+
+    // Helpers DOM
+    const $ = (id) => document.getElementById(id);
+
+    function showScreen(id) {
+        const screens = document.querySelectorAll(".screen");
+        screens.forEach((s) => s.classList.remove("active"));
+        const screen = $(id);
+        if (screen) screen.classList.add("active");
+    }
+
+    function createPlayersInputs() {
+        const container = $("playersContainer");
+        container.innerHTML = "";
+        for (let i = 0; i < state.numPlayers; i++) {
+            const row = document.createElement("div");
+            row.className = "player-input-row";
+
+            const badge = document.createElement("div");
+            badge.className = "player-index";
+            badge.textContent = i + 1;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.placeholder = "Nom du joueur " + (i + 1);
+            input.dataset.index = i;
+
+            row.appendChild(badge);
+            row.appendChild(input);
+            container.appendChild(row);
+        }
+    }
+
+    function readPlayerNames() {
+        const inputs = $("playersContainer").querySelectorAll("input[type='text']");
+        const players = [];
+        inputs.forEach((input, idx) => {
+            const raw = input.value.trim();
+            const name = raw || "Joueur " + (idx + 1);
+            players.push({
+                id: idx,
+                name,
+                role: null,
+                profile: null
+            });
+        });
+        state.players = players;
+    }
+
+    function randomFrom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateProfiles() {
+        for (let p of state.players) {
+            p.profile = {
+                gender: randomFrom(genders),
+                accessory: randomFrom(accessories),
+                job: randomFrom(jobs),
+                trait: randomFrom(traits)
+            };
+        }
+    }
+
+    function assignRolesAndContract() {
+        const n = state.players.length;
+        const hitmanIndex = Math.floor(Math.random() * n);
+        state.hitmanIndex = hitmanIndex;
+
+        // Assign roles
+        state.players.forEach((p, idx) => {
+            p.role = idx === hitmanIndex ? "hitman" : "civil";
+        });
+
+        // Choose target among others
+        let targetIndex = Math.floor(Math.random() * (n - 1));
+        if (targetIndex >= hitmanIndex) {
+            targetIndex += 1;
+        }
+        state.targetIndex = targetIndex;
+
+        const targetProfile = state.players[targetIndex].profile;
+
+        // Pick 2 attributes randomly for the contract
+        const keys = ["gender", "accessory", "job", "trait"];
+        shuffleArray(keys);
+        const contractAttrs = keys.slice(0, 2);
+        state.contractAttributes = contractAttrs;
+    }
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    // Génère un indice sur un joueur aléatoire (sauf soi-même)
+    function generateClue(forPlayerIndex) {
+        const otherPlayers = state.players
+            .map((p, idx) => ({...p, index: idx}))
+            .filter(p => p.index !== forPlayerIndex && !state.eliminatedPlayers.includes(p.index));
+        
+        if (otherPlayers.length === 0) return null;
+        
+        const target = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+        const profile = target.profile;
+        
+        // Choisit un attribut au hasard
+        const attrs = ['gender', 'accessory', 'job', 'trait'];
+        const attr = attrs[Math.floor(Math.random() * attrs.length)];
+        let attrLabel, attrValue;
+        
+        switch(attr) {
+            case 'gender': attrLabel = 'Genre'; attrValue = profile.gender; break;
+            case 'accessory': attrLabel = 'Accessoire'; attrValue = profile.accessory; break;
+            case 'job': attrLabel = 'Métier'; attrValue = profile.job; break;
+            case 'trait': attrLabel = 'Caractère'; attrValue = profile.trait; break;
+        }
+        
+        // 15% de chance que l'indice soit faux (pour créer le doute)
+        const isFalse = Math.random() < 0.15;
+        if (isFalse) {
+            // Prend une valeur aléatoire différente
+            const possibleValues = attr === 'gender' ? genders : 
+                                attr === 'accessory' ? accessories :
+                                attr === 'job' ? jobs : traits;
+            const otherValues = possibleValues.filter(v => v !== attrValue);
+            attrValue = otherValues[Math.floor(Math.random() * otherValues.length)];
+        }
+        
+        return {
+            type: isFalse ? 'false_clue' : 'clue',
+            targetPlayer: target.name,
+            targetIndex: target.index,
+            attribute: attrLabel,
+            value: attrValue,
+            isFalse: isFalse
+        };
+    }
+
+    // Vérifie les conditions de victoire
+    function checkVictoryConditions() {
+        // Victoire Hitman : cible éliminée
+        if (state.hitmanSuccess) {
+            state.gameOver = true;
+            state.winner = 'hitman';
+            return true;
+        }
+        
+        // Victoire Hitman : survie jusqu'à 2 joueurs restants
+        const alivePlayers = state.players.filter((p, idx) => !state.eliminatedPlayers.includes(idx));
+        if (alivePlayers.length <= 2 && !state.eliminatedPlayers.includes(state.hitmanIndex)) {
+            state.gameOver = true;
+            state.winner = 'hitman';
+            return true;
+        }
+        
+        // Victoire Civils : Hitman éliminé au vote
+        if (state.eliminatedPlayers.includes(state.hitmanIndex)) {
+            state.gameOver = true;
+            state.winner = 'civils';
+            return true;
+        }
+        
+        // Victoire Civils : 6 rounds écoulés sans victoire du hitman
+        if (state.currentRound >= state.maxRounds) {
+            state.gameOver = true;
+            state.winner = 'civils';
+            return true;
+        }
+        
+        return false;
+    }
+    // Mini-jeu 1 : Memory (apparier couleurs)
+    function generateMemoryGame() {
+        const colors = ['🔴', '🔵', '🟢', '🟡', '🟣', '🟠'];
+        const pairs = [...colors, ...colors];
+        shuffleArray(pairs);
+        return {
+            type: 'memory',
+            cards: pairs.map((icon, idx) => ({id: idx, icon, revealed: false, matched: false})),
+            selected: [],
+            matches: 0,
+            attempts: 0
+        };
+    }
+
+    // Mini-jeu 2 : Réflexe (cliquer quand le cercle devient vert)
+    function generateReflexGame() {
+        return {
+            type: 'reflex',
+            state: 'waiting', // waiting, ready, clicked, done
+            startTime: 0,
+            reactionTime: 0,
+            timeoutId: null
+        };
+    }
+
+    // Mini-jeu 3 : Code couleur (retenir une courte séquence)
+    function generateColorCodeGame() {
+        const symbols = ['🔴', '🟢', '🔵', '🟡'];
+        const length = 4;
+        const sequence = [];
+        for (let i = 0; i < length; i++) {
+            sequence.push(symbols[Math.floor(Math.random() * symbols.length)]);
+        }
+        return {
+            type: 'colorcode',
+            sequence,
+            userInput: [],
+            step: 'show' // show -> input -> done
+        };
+    }
+
+    function updatePassScreen() {
+        const idx = state.currentRevealIndex;
+        const player = state.players[idx];
+        $("passPlayerName").textContent = player.name;
+    }
+
+    function renderPlayerView() {
+        const idx = state.currentRevealIndex;
+        const player = state.players[idx];
+        const isHitman = player.role === "hitman";
+
+        $("playerViewTitle").textContent = player.name;
+        $("playerViewSubtitle").textContent = isHitman
+            ? "Ton rôle : Tueur sous contrat"
+            : "Ton rôle : Civil";
+
+        const pillContainer = $("rolePill");
+        pillContainer.innerHTML = "";
+        const pill = document.createElement("div");
+        pill.classList.add("pill");
+        if (isHitman) {
+            pill.classList.add("pill-hitman");
+            pill.textContent = "Tueur";
+        } else {
+            pill.classList.add("pill-civil");
+            pill.textContent = "Civil";
+        }
+        pillContainer.appendChild(pill);
+
+        const container = $("playerViewContent");
+        container.innerHTML = "";
+
+        const profileCard = document.createElement("div");
+        profileCard.className = "profile-card";
+
+        const profileTitle = document.createElement("div");
+        profileTitle.className = "profile-title";
+        profileTitle.textContent = isHitman
+            ? "Instructions pour le tueur"
+            : "Ton profil secret";
+
+        const list = document.createElement("ul");
+        list.className = "profile-list";
+
+        if (isHitman) {
+            const target = state.players[state.targetIndex];
+            const targetProfile = target.profile;
+            const attrs = state.contractAttributes;
+
+            const liIntro = document.createElement("li");
+            liIntro.textContent =
+                "Tu dois éliminer une cible parmi les autres joueurs. Tu ne connais que quelques indices sur cette personne.";
+            list.appendChild(liIntro);
+
+            const liHint = document.createElement("li");
+            const parts = [];
+            attrs.forEach((key) => {
+                let label;
+                let val;
+                switch (key) {
+                    case "gender":
+                        label = "Genre";
+                        val = targetProfile.gender;
+                        break;
+                    case "accessory":
+                        label = "Accessoire";
+                        val = targetProfile.accessory;
+                        break;
+                    case "job":
+                        label = "Métier";
+                        val = targetProfile.job;
+                        break;
+                    case "trait":
+                        label = "Caractère";
+                        val = targetProfile.trait;
+                        break;
+                }
+                parts.push(label + " : " + val);
+            });
+            liHint.innerHTML =
+                "Ta cible correspond à : <span class=\"contract-highlight\">" +
+                parts.join(" • ") +
+                "</span>.";
+            list.appendChild(liHint);
+
+            const liWarning = document.createElement("li");
+            liWarning.textContent =
+                "Plusieurs joueurs peuvent correspondre à ces critères : observe, discute et reste discret.";
+            list.appendChild(liWarning);
+
+            const tagline = document.createElement("div");
+            tagline.className = "contract-tagline";
+            tagline.textContent =
+                "Ne révèle jamais ton rôle. Si tu te trompes de cible, la partie peut basculer contre toi.";
+            profileCard.appendChild(profileTitle);
+            profileCard.appendChild(list);
+            profileCard.appendChild(tagline);
+        } else {
+            const profile = player.profile;
+
+            const li1 = document.createElement("li");
+            li1.textContent = "Genre : " + profile.gender;
+            const li2 = document.createElement("li");
+            li2.textContent = "Accessoire : " + profile.accessory;
+            const li3 = document.createElement("li");
+            li3.textContent = "Métier : " + profile.job;
+            const li4 = document.createElement("li");
+            li4.textContent = "Caractère : " + profile.trait;
+
+            list.appendChild(li1);
+            list.appendChild(li2);
+            list.appendChild(li3);
+            list.appendChild(li4);
+
+            profileCard.appendChild(profileTitle);
+            profileCard.appendChild(list);
+
+            const tagline = document.createElement("div");
+            tagline.className = "contract-tagline";
+            tagline.textContent =
+                "Ton but : repérer le tueur en observant les comportements et en recoupant les profils.";
+            profileCard.appendChild(tagline);
+        }
+
+        container.appendChild(profileCard);
+    }
+
+    function updateSummary() {
+        const badgesContainer = $("summaryBadges");
+        badgesContainer.innerHTML = "";
+
+        const badgePlayers = document.createElement("div");
+        badgePlayers.className = "summary-badge";
+        badgePlayers.textContent = state.players.length + " joueurs";
+        badgesContainer.appendChild(badgePlayers);
+
+        const badgeHitman = document.createElement("div");
+        badgeHitman.className = "summary-badge";
+        badgeHitman.textContent = "1 tueur, " + (state.players.length - 1) + " civils";
+        badgesContainer.appendChild(badgeHitman);
+
+        const badgeContract = document.createElement("div");
+        badgeContract.className = "summary-badge";
+        badgeContract.textContent = "Contrat avec " + state.contractAttributes.length + " attributs";
+        badgesContainer.appendChild(badgeContract);
+    }
+
+    // ========== GESTION DES ÉCRANS ==========
+    
+    function startInvestigationPhase() {
+        state.currentRound++;
+        state.currentPlayerTurn = 0;
+        state.hitmanAttempted = false;
+        
+        // Créer ordre aléatoire pour ce round (seulement joueurs vivants)
+        state.investigationOrder = state.players
+            .map((p, idx) => idx)
+            .filter(idx => !state.eliminatedPlayers.includes(idx));
+        shuffleArray(state.investigationOrder);
+        
+        updateInvestigationScreen();
+        showScreen('screen-investigation');
+    }
+    
+    function updateInvestigationScreen() {
+        $('roundNumber').textContent = state.currentRound;
+        const playerIdx = state.investigationOrder[state.currentPlayerTurn];
+        const player = state.players[playerIdx];
+        $('investigationPlayerName').textContent = player.name;
+    }
+    
+    function showPlayerTurn() {
+        const playerIdx = state.investigationOrder[state.currentPlayerTurn];
+        const player = state.players[playerIdx];
+        const isHitman = player.role === 'hitman';
+        
+        $('turnPlayerTitle').textContent = player.name;
+        
+        // Afficher profil
+        const profileDiv = $('turnPlayerProfile');
+        profileDiv.innerHTML = `
+            <div class="profile-title">Ton profil (${isHitman ? 'HITMAN' : 'Civil'})</div>
+            <ul class="profile-list">
+                <li>Genre : ${player.profile.gender}</li>
+                <li>Accessoire : ${player.profile.accessory}</li>
+                <li>Métier : ${player.profile.job}</li>
+                <li>Caractère : ${player.profile.trait}</li>
+            </ul>
+            ${isHitman ? `<p style="font-size:0.8rem;color:var(--hitman);margin-top:6px;"><strong>Contrat :</strong> ${state.contractAttributes.map(attr => {
+                const target = state.players[state.targetIndex];
+                let val = attr === 'gender' ? target.profile.gender :
+                         attr === 'accessory' ? target.profile.accessory :
+                         attr === 'job' ? target.profile.job : target.profile.trait;
+                let label = attr === 'gender' ? 'Genre' : attr === 'accessory' ? 'Accessoire' : attr === 'job' ? 'Métier' : 'Caractère';
+                return `${label} = ${val}`;
+            }).join(' + ')}</p>` : ''}
+        `;
+        
+        // Gestion mini-jeu
+        $('minigameContainer').style.display = 'block';
+        $('clueReveal').style.display = 'none';
+        $('btnEndTurn').style.display = 'none';
+        $('btnBackToInvestigation').style.display = 'none';
+        
+        // Générer mini-jeu aléatoire
+        const r = Math.random();
+        let minigameType;
+        if (r < 0.34) minigameType = 'memory';
+        else if (r < 0.67) minigameType = 'reflex';
+        else minigameType = 'colorcode';
+        
+        renderMinigame(minigameType);
+        
+        // Démarrer le timer de 45s pour ce tour
+        startTurnTimer();
+
+        // Afficher les indices déjà gagnés par ce joueur
+        renderPlayerCluesFor(playerIdx);
+        
+        // Gestion Hitman
+        const hitmanDiv = $('hitmanAction');
+        if (isHitman && !state.hitmanAttempted) {
+            hitmanDiv.style.display = 'block';
+            const select = $('hitmanTargetSelect');
+            select.innerHTML = '<option value="">-- Choisir une cible --</option>';
+            state.players.forEach((p, idx) => {
+                if (idx !== playerIdx && !state.eliminatedPlayers.includes(idx)) {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = p.name;
+                    select.appendChild(opt);
+                }
+            });
+        } else {
+            hitmanDiv.style.display = 'none';
+        }
+        
+        showScreen('screen-player-turn');
+    }
+    
+    let currentMinigame = null;
+    
+    function renderMinigame(type) {
+        const container = $('minigameContent');
+        if (type === 'memory') {
+            currentMinigame = generateMemoryGame();
+        } else if (type === 'reflex') {
+            currentMinigame = generateReflexGame();
+        } else if (type === 'colorcode') {
+            currentMinigame = generateColorCodeGame();
+        }
+        
+        if (type === 'memory') {
+            container.innerHTML = `
+                <p style="font-size:0.8rem;margin-bottom:8px;">Trouve les paires ! (${currentMinigame.matches}/6)</p>
+                <div id="memoryGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto;">
+                    ${currentMinigame.cards.map((card, idx) => `
+                        <button class="memory-card" data-idx="${idx}" style="aspect-ratio:1;border:1px solid rgba(148,163,184,0.3);border-radius:8px;background:rgba(15,23,42,0.8);font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                            ${card.revealed || card.matched ? card.icon : '?'}
+                        </button>
+                    `).join('')}
+                </div>
+                <p id="memoryStatus" style="text-align:center;margin-top:8px;font-size:0.8rem;color:var(--accent);">Clique sur 2 cartes</p>
+            `;
+            
+            // Event listeners pour cartes memory
+            container.querySelectorAll('.memory-card').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = parseInt(e.target.dataset.idx);
+                    handleMemoryCardClick(idx);
+                });
+            });
+        } else if (type === 'reflex') {
+            // Reflex game
+            container.innerHTML = `
+                <div id="reflexArea" style="padding:20px;text-align:center;border:2px dashed rgba(148,163,184,0.3);border-radius:12px;cursor:pointer;background:rgba(15,23,42,0.5);">
+                    <p id="reflexText" style="font-size:0.9rem;margin:0;">Clique ici quand le cercle devient VERT</p>
+                    <div id="reflexCircle" style="width:60px;height:60px;border-radius:50%;background:#334155;margin:10px auto;transition:background 0.1s;"></div>
+                </div>
+                <p id="reflexResult" style="text-align:center;margin-top:8px;font-size:0.8rem;"></p>
+            `;
+            
+            const area = $('reflexArea');
+            const circle = $('reflexCircle');
+            const text = $('reflexText');
+            
+            area.addEventListener('click', () => {
+                if (currentMinigame.state === 'waiting') {
+                    // Démarrer
+                    text.textContent = "Attends le vert...";
+                    circle.style.background = '#ef4444'; // Rouge
+                    currentMinigame.state = 'ready';
+                    
+                    const delay = 1500 + Math.random() * 2000;
+                    currentMinigame.timeoutId = setTimeout(() => {
+                        circle.style.background = '#22c55e'; // Vert
+                        currentMinigame.startTime = Date.now();
+                        currentMinigame.state = 'clicked';
+                        text.textContent = "CLIQUE !";
+                    }, delay);
+                } else if (currentMinigame.state === 'clicked') {
+                    // Succès
+                    const time = Date.now() - currentMinigame.startTime;
+                    currentMinigame.reactionTime = time;
+                    currentMinigame.state = 'done';
+                    text.textContent = `Temps : ${time}ms !`;
+                    $('reflexResult').textContent = time < 300 ? "Excellent ! Indice gagné !" : time < 500 ? "Bon ! Indice gagné !" : "Lent mais accepté ! Indice gagné !";
+                    $('reflexResult').style.color = 'var(--accent)';
+                    setTimeout(rewardClue, 1000);
+                } else if (currentMinigame.state === 'ready') {
+                    // Trop tôt
+                    clearTimeout(currentMinigame.timeoutId);
+                    text.textContent = "Trop tôt ! Réessaye...";
+                    circle.style.background = '#334155';
+                    currentMinigame.state = 'waiting';
+                }
+            });
+        } else if (type === 'colorcode') {
+            container.innerHTML = `
+                <p style="font-size:0.8rem;margin-bottom:8px;">
+                    Mémorise cette séquence de symboles, puis reproduis-la dans l'ordre.
+                </p>
+                <div id="codeSequence" style="font-size:1.6rem;text-align:center;margin-bottom:10px;">
+                    ${currentMinigame.sequence.join(' ')}
+                </div>
+                <div id="codeButtons" style="display:flex;gap:8px;justify-content:center;margin-bottom:8px;">
+                    ${['🔴','🟢','🔵','🟡'].map(sym => `
+                        <button class="btn btn-ghost" data-sym="${sym}" style="padding:6px 10px;font-size:1.2rem;">${sym}</button>
+                    `).join('')}
+                </div>
+                <div style="text-align:center;font-size:0.9rem;margin-bottom:6px;">
+                    Ta réponse : <span id="codeInputDisplay">_ _ _ _</span>
+                </div>
+                <p id="codeStatus" style="text-align:center;font-size:0.8rem;color:var(--text-muted);">
+                    Clique sur les symboles dans le bon ordre.
+                </p>
+            `;
+
+            // Cacher la séquence après 2 secondes
+            setTimeout(() => {
+                const seqDiv = $('codeSequence');
+                if (seqDiv) seqDiv.textContent = '❓ ❓ ❓ ❓';
+            }, 2000);
+
+            const inputDisplay = $('codeInputDisplay');
+            const status = $('codeStatus');
+
+            container.querySelectorAll('#codeButtons button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (currentMinigame.step === 'done') return;
+
+                    const sym = btn.dataset.sym;
+                    currentMinigame.userInput.push(sym);
+
+                    // Mise à jour affichage
+                    const filled = currentMinigame.userInput.concat(
+                        Array(4 - currentMinigame.userInput.length).fill('_')
+                    );
+                    inputDisplay.textContent = filled.join(' ');
+
+                    if (currentMinigame.userInput.length === 4) {
+                        // Vérification
+                        const ok = currentMinigame.userInput.every(
+                            (s, i) => s === currentMinigame.sequence[i]
+                        );
+                        currentMinigame.step = 'done';
+                        if (ok) {
+                            status.textContent = 'Parfait ! Indice gagné.';
+                            status.style.color = 'var(--accent)';
+                            setTimeout(rewardClue, 800);
+                        } else {
+                            status.textContent = 'Mauvaise séquence, pas d\'indice.';
+                            status.style.color = 'var(--danger)';
+                            // Pas d'indice, on termine le tour après une seconde
+                            setTimeout(() => {
+                                $('minigameContainer').style.display = 'none';
+                                $('btnEndTurn').style.display = 'inline-flex';
+                            }, 1000);
+                        }
+                    }
+                });
+            });
+        }
+    }
+    
+    function startTurnTimer() {
+        state.turnTimeLeft = 45;
+        state.clueGivenThisTurn = false;
+
+        const timer = $('turnTimer');
+        const value = $('turnTimerValue');
+        timer.style.display = 'flex';
+        timer.classList.remove('urgent');
+        value.textContent = state.turnTimeLeft;
+
+        if (state.turnTimerId) clearInterval(state.turnTimerId);
+
+        state.turnTimerId = setInterval(() => {
+            state.turnTimeLeft--;
+            value.textContent = state.turnTimeLeft;
+
+            if (state.turnTimeLeft <= 10) {
+                timer.classList.add('urgent');
+            }
+
+            if (state.turnTimeLeft <= 0) {
+                clearInterval(state.turnTimerId);
+                state.turnTimerId = null;
+                timer.style.display = 'none';
+
+                // Temps écoulé : pas d'indice
+                if (!state.clueGivenThisTurn) {
+                    $('minigameContainer').style.display = 'none';
+                    $('clueReveal').style.display = 'block';
+                    $('clueText').innerHTML = `
+                        <strong style="color:var(--danger);">⏱ Temps écoulé</strong><br>
+                        Tu n'as pas gagné d'indice pour ce tour.
+                    `;
+                    $('btnEndTurn').style.display = 'inline-flex';
+                }
+            }
+        }, 1000);
+    }
+
+    function stopTurnTimer() {
+        const timer = $('turnTimer');
+        if (state.turnTimerId) {
+            clearInterval(state.turnTimerId);
+            state.turnTimerId = null;
+        }
+        timer.style.display = 'none';
+        timer.classList.remove('urgent');
+    }
+    
+    function handleMemoryCardClick(idx) {
+        const card = currentMinigame.cards[idx];
+        if (card.revealed || card.matched || currentMinigame.selected.length >= 2) return;
+        
+        card.revealed = true;
+        currentMinigame.selected.push(idx);
+        
+        // Update UI
+        const btn = document.querySelector(`.memory-card[data-idx="${idx}"]`);
+        btn.textContent = card.icon;
+        
+        if (currentMinigame.selected.length === 2) {
+            const [idx1, idx2] = currentMinigame.selected;
+            const card1 = currentMinigame.cards[idx1];
+            const card2 = currentMinigame.cards[idx2];
+            
+            if (card1.icon === card2.icon) {
+                // Match !
+                card1.matched = true;
+                card2.matched = true;
+                currentMinigame.matches++;
+                currentMinigame.selected = [];
+                $('memoryStatus').textContent = `Paires trouvées : ${currentMinigame.matches}/6`;
+                
+                if (currentMinigame.matches === 6) {
+                    $('memoryStatus').textContent = "Bravo ! Indice gagné !";
+                    $('memoryStatus').style.color = 'var(--accent)';
+                    setTimeout(rewardClue, 800);
+                }
+            } else {
+                // Pas match
+                setTimeout(() => {
+                    card1.revealed = false;
+                    card2.revealed = false;
+                    document.querySelector(`.memory-card[data-idx="${idx1}"]`).textContent = '?';
+                    document.querySelector(`.memory-card[data-idx="${idx2}"]`).textContent = '?';
+                    currentMinigame.selected = [];
+                }, 800);
+            }
+        }
+    }
+    
+    function rewardClue() {
+        state.clueGivenThisTurn = true;
+        stopTurnTimer();
+        
+        const playerIdx = state.investigationOrder[state.currentPlayerTurn];
+        const clue = generateClue(playerIdx);
+        
+        if (clue) {
+            state.journal.push({
+                round: state.currentRound,
+                player: state.players[playerIdx].name,
+                ...clue
+            });
+            
+            const clueDiv = $('clueReveal');
+            clueDiv.style.display = 'block';
+            const typeLabel = clue.isFalse ? '⚠️ INDICE (peut-être faux)' : '✅ INDICE VÉRIFIÉ';
+            $('clueText').innerHTML = `
+                <strong>${typeLabel}</strong><br>
+                ${clue.targetPlayer} : ${clue.attribute} = ${clue.value}
+            `;
+        }
+        
+        $('minigameContainer').style.display = 'none';
+        $('btnEndTurn').style.display = 'inline-flex';
+    }
+    
+    function endPlayerTurn() {
+        stopTurnTimer();
+        
+        state.currentPlayerTurn++;
+        
+        if (state.currentPlayerTurn >= state.investigationOrder.length) {
+            // Fin du round, aller au journal puis vote
+            updateJournal();
+            showScreen('screen-journal');
+        } else {
+            // Joueur suivant
+            updateInvestigationScreen();
+            showScreen('screen-investigation');
+        }
+    }
+    
+    function updateJournal() {
+        const container = $('journalEntries');
+        const roundEntries = state.journal.filter(e => e.round === state.currentRound);
+        
+        if (roundEntries.length === 0) {
+            container.innerHTML = '<p class="hint" style="text-align:center;padding:20px;">Aucun indice découvert ce round...</p>';
+        } else {
+            container.innerHTML = roundEntries.map(entry => `
+                <div class="profile-card" style="margin-bottom:8px;padding:10px;">
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px;">Découvert par ${entry.player}</div>
+                    <div style="font-size:0.85rem;">
+                        <span style="color:${entry.isFalse ? 'var(--danger)' : 'var(--accent)'};font-weight:600;">
+                            ${entry.isFalse ? '⚠️ ' : '✅ '}${entry.targetPlayer}
+                        </span> : ${entry.attribute} = ${entry.value}
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+    
+    function renderPlayerCluesFor(playerIdx) {
+        const container = $('playerClues');
+        const listDiv = $('playerCluesList');
+        const playerName = state.players[playerIdx].name;
+
+        const clues = state.journal.filter(e => e.player === playerName);
+
+        if (clues.length === 0) {
+            container.style.display = 'none';
+            listDiv.innerHTML = '';
+            return;
+        }
+
+        container.style.display = 'block';
+        listDiv.innerHTML = clues.map(c => `
+            <div class="clue-card">
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px;">
+                    Round ${c.round}
+                </div>
+                <div>
+                    <span style="color:${c.isFalse ? 'var(--danger)' : 'var(--accent)'};font-weight:600;">
+                        ${c.targetPlayer}
+                    </span> : ${c.attribute} = ${c.value}
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function startVotePhase() {
+        const container = $('voteButtons');
+        container.innerHTML = '';
+        
+        const alivePlayers = state.players.filter((p, idx) => !state.eliminatedPlayers.includes(idx));
+        
+        // Réinitialiser l'ordre de vote
+        state.voteOrder = alivePlayers.map(p => p.id);
+        state.currentVoter = 0;
+        state.votes = {};
+        
+        // Afficher les boutons de vote pour le premier votant
+        updateVoteButtons();
+        
+        $('voteConfirmation').style.display = 'none';
+        $('btnRevealVotes').style.display = 'none';
+        showScreen('screen-vote');
+    }
+    
+    function updateVoteButtons() {
+        const container = $('voteButtons');
+        container.innerHTML = '';
+        
+        const alivePlayers = state.players.filter((p, idx) => !state.eliminatedPlayers.includes(idx));
+        const currentVoterId = state.voteOrder[state.currentVoter];
+        const currentVoter = state.players.find(p => p.id === currentVoterId);
+        
+        // Afficher le nom du votant actuel
+        const title = document.createElement('div');
+        title.style.cssText = 'margin-bottom:12px;font-size:0.9rem;color:var(--accent);font-weight:600;';
+        title.textContent = `C'est au tour de ${currentVoter.name} de voter`;
+        container.appendChild(title);
+        
+        // Créer les boutons pour les autres joueurs (on ne peut pas voter pour soi)
+        alivePlayers.forEach(player => {
+            if (player.id === currentVoterId) return; // Ne pas afficher soi-même
+            
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-ghost';
+            btn.style.cssText = 'width:100%;text-align:left;justify-content:flex-start;margin-bottom:6px;';
+            btn.innerHTML = `<span style="width:26px;height:26px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-right:8px;font-size:0.8rem;">${player.name.charAt(0)}</span> ${player.name}`;
+            btn.addEventListener('click', () => castVote(player.id));
+            container.appendChild(btn);
+        });
+    }
+    
+    function castVote(targetId) {
+        const currentVoterId = state.voteOrder[state.currentVoter];
+        const voter = state.players.find(p => p.id === currentVoterId);
+        state.votes[voter.id] = targetId;
+        
+        // Afficher confirmation
+        $('voteConfirmation').style.display = 'block';
+        $('votedPlayerName').textContent = state.players[targetId].name;
+        
+        // Passer au votant suivant ou révéler
+        state.currentVoter++;
+        if (state.currentVoter >= state.voteOrder.length) {
+            // Tous ont voté
+            $('voteButtons').style.display = 'none';
+            $('voteConfirmation').style.display = 'none';
+            $('btnRevealVotes').style.display = 'inline-flex';
+        } else {
+            // Passer au votant suivant
+            setTimeout(() => {
+                $('voteConfirmation').style.display = 'none';
+                updateVoteButtons();
+            }, 1500);
+        }
+    }
+    
+    function revealVotes() {
+        // Compter les votes
+        const voteCounts = {};
+        Object.values(state.votes).forEach(targetId => {
+            voteCounts[targetId] = (voteCounts[targetId] || 0) + 1;
+        });
+        
+        // Trouver le plus voté
+        let maxVotes = 0;
+        let eliminatedId = null;
+        let tie = false;
+        
+        for (const [id, count] of Object.entries(voteCounts)) {
+            if (count > maxVotes) {
+                maxVotes = count;
+                eliminatedId = parseInt(id);
+                tie = false;
+            } else if (count === maxVotes) {
+                tie = true;
+            }
+        }
+        
+        // Afficher résultats
+        const container = $('voteResults');
+        container.innerHTML = '<div style="margin-bottom:12px;"><strong>Résultats :</strong></div>';
+        
+        Object.entries(state.votes).forEach(([voterId, targetId]) => {
+            const voter = state.players.find(p => p.id === parseInt(voterId));
+            const target = state.players.find(p => p.id === targetId);
+            container.innerHTML += `
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;background:rgba(15,23,42,0.5);border-radius:6px;margin-bottom:4px;font-size:0.85rem;">
+                    <span>${voter.name}</span>
+                    <span style="color:var(--accent);">→ ${target.name}</span>
+                </div>
+            `;
+        });
+        
+        // Gestion élimination
+        const elimDiv = $('eliminationReveal');
+        const elimCard = $('eliminatedCard');
+        
+        if (tie || eliminatedId === null) {
+            $('resolutionSubtitle').textContent = 'Égalité ! Personne n\'est éliminé ce round.';
+            elimDiv.style.display = 'none';
+        } else {
+            const eliminated = state.players[eliminatedId];
+            state.eliminatedPlayers.push(eliminatedId);
+            
+            $('resolutionSubtitle').textContent = `${eliminated.name} a été éliminé !`;
+            elimDiv.style.display = 'block';
+            
+            const isHitman = eliminated.role === 'hitman';
+            elimCard.innerHTML = `
+                <div class="profile-title" style="color:${isHitman ? 'var(--danger)' : 'var(--text)'};">
+                    ${eliminated.name} était ${isHitman ? 'le HITMAN !' : 'un CIVIL'}
+                </div>
+                <p style="font-size:0.85rem;margin:6px 0;">
+                    ${isHitman ? 'Les civils ont gagné !' : 'Les civils ont fait une erreur...'}
+                </p>
+                ${!isHitman ? `
+                <div style="margin-top:8px;padding:8px;background:rgba(249,115,115,0.1);border-radius:6px;">
+                    <p style="font-size:0.8rem;margin:0;color:var(--danger);">
+                        ⚠️ Le Hitman peut continuer à éliminer des cibles !
+                    </p>
+                </div>` : ''}
+            `;
+        }
+        
+        showScreen('screen-resolution');
+    }
+    
+    function nextRound() {
+        // Vérifier victoire
+        if (checkVictoryConditions()) {
+            showEndScreen();
+            return;
+        }
+        
+        // Vérifier si Hitman a éliminé sa cible
+        if (state.hitmanSuccess) {
+            showEndScreen();
+            return;
+        }
+        
+        // Nouveau round
+        state.voteOrder = null;
+        state.currentVoter = 0;
+        startInvestigationPhase();
+    }
+    
+    function showEndScreen() {
+        const hitman = state.players[state.hitmanIndex];
+        const target = state.players[state.targetIndex];
+        
+        $('endTitle').textContent = state.winner === 'hitman' ? '🏆 Victoire du Hitman !' : '✅ Victoire des Civils !';
+        $('endSubtitle').textContent = state.winner === 'hitman' 
+            ? 'Le tueur a réussi à éliminer sa cible ou à survivre jusqu\'au bout !'
+            : 'Les civils ont identifié et éliminé le tueur !';
+        
+        const content = $('endContent');
+        
+        if (state.winner === 'hitman') {
+            content.innerHTML = `
+                <div class="profile-card" style="border-color:rgba(250,204,21,0.5);">
+                    <div class="profile-title" style="color:var(--hitman);">Le Hitman</div>
+                    <p style="font-size:0.9rem;"><strong>${hitman.name}</strong></p>
+                    <p class="hint">Sa cible était : ${target.name} (${target.profile.gender}, ${target.profile.job})</p>
+                </div>
+                <div style="margin-top:12px;padding:12px;background:rgba(15,23,42,0.8);border-radius:var(--radius-md);">
+                    <p style="margin:0;font-size:0.85rem;">
+                        ${state.hitmanSuccess 
+                            ? 'Le Hitman a éliminé sa cible avec succès !' 
+                            : 'Le Hitman a survécu jusqu\'à la fin de la partie !'}
+                    </p>
+                </div>
+            `;
+        } else {
+            content.innerHTML = `
+                <div class="profile-card" style="border-color:rgba(34,197,94,0.5);">
+                    <div class="profile-title" style="color:#22c55e;">Les Civils</div>
+                    <p style="font-size:0.9rem;">Ont démasqué <strong>${hitman.name}</strong> !</p>
+                </div>
+                <div class="profile-card" style="margin-top:8px;">
+                    <div class="profile-title">Le Hitman</div>
+                    <p class="hint">Sa cible était ${target.name}. Heureusement, les civils l'ont arrêté à temps !</p>
+                </div>
+            `;
+        }
+        
+        // Résumé des survivants
+        const survivors = state.players.filter((p, idx) => !state.eliminatedPlayers.includes(idx));
+        if (survivors.length > 0) {
+            content.innerHTML += `
+                <div style="margin-top:12px;">
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;">Survivants :</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        ${survivors.map(s => `
+                            <span class="pill" style="background:rgba(148,163,184,0.2);border-color:rgba(148,163,184,0.4);">
+                                ${s.name} ${s.role === 'hitman' ? '(Hitman)' : '(Civil)'}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        showScreen('screen-end');
+    }
+
+    // ========== EVENT LISTENERS ==========
+
+    $('btnSetupNext').addEventListener('click', () => {
+        const count = parseInt($('playerCount').value, 10);
+        state.numPlayers = count;
+        createPlayersInputs();
+        showScreen('screen-names');
+    });
+
+    $('btnNamesBack').addEventListener('click', () => {
+        showScreen('screen-setup');
+    });
+
+    $('btnStartGame').addEventListener('click', () => {
+        readPlayerNames();
+        generateProfiles();
+        assignRolesAndContract();
+        state.currentRevealIndex = 0;
+        updatePassScreen();
+        showScreen('screen-pass');
+    });
+
+    $('btnRevealForPlayer').addEventListener('click', () => {
+        renderPlayerView();
+        showScreen('screen-player-view');
+    });
+
+    $('btnPlayerDone').addEventListener('click', () => {
+        state.currentRevealIndex += 1;
+        if (state.currentRevealIndex >= state.players.length) {
+            updateSummary();
+            showScreen('screen-summary');
+            // Auto-démarrer la phase d'investigation après 2 secondes
+            setTimeout(() => {
+                startInvestigationPhase();
+            }, 2000);
+        } else {
+            updatePassScreen();
+            showScreen('screen-pass');
+        }
+    });
+
+    $('btnRestart').addEventListener('click', resetGame);
+
+    // Nouveaux listeners pour les phases de jeu
+    $('btnStartTurn').addEventListener('click', showPlayerTurn);
+
+    $('btnEndTurn').addEventListener('click', endPlayerTurn);
+
+    $('btnBackToInvestigation').addEventListener('click', () => {
+        showScreen('screen-investigation');
+    });
+
+    $('btnAttemptKill').addEventListener('click', () => {
+        const select = $('hitmanTargetSelect');
+        const targetIdx = parseInt(select.value);
+        
+        if (isNaN(targetIdx)) {
+            alert('Choisis une cible !');
+            return;
+        }
+        
+        state.hitmanAttempted = true;
+        const isCorrect = targetIdx === state.targetIndex;
+        
+        if (isCorrect) {
+            state.hitmanSuccess = true;
+            $('hitmanAction').innerHTML = `
+                <div class="card" style="border-color:rgba(34,197,94,0.6);background:radial-gradient(circle at top left, rgba(34,197,94,0.15), transparent 50%);">
+                    <div class="card-title" style="color:#22c55e;">✅ Cible éliminée !</div>
+                    <p style="font-size:0.85rem;">Tu as réussi ton contrat. La partie va se terminer.</p>
+                </div>
+            `;
+        } else {
+            // Mauvaise cible = révélation d'un indice sur le Hitman
+            const hitman = state.players[state.hitmanIndex];
+            const attrs = ['gender', 'accessory', 'job', 'trait'];
+            const revealedAttr = attrs[Math.floor(Math.random() * attrs.length)];
+            let label, val;
+            switch(revealedAttr) {
+                case 'gender': label = 'Genre'; val = hitman.profile.gender; break;
+                case 'accessory': label = 'Accessoire'; val = hitman.profile.accessory; break;
+                case 'job': label = 'Métier'; val = hitman.profile.job; break;
+                case 'trait': label = 'Caractère'; val = hitman.profile.trait; break;
+            }
+            
+            // Ajouter au journal comme indice public
+            state.journal.push({
+                round: state.currentRound,
+                player: 'Système',
+                type: 'penalty',
+                targetPlayer: hitman.name,
+                targetIndex: state.hitmanIndex,
+                attribute: label,
+                value: val,
+                isFalse: false,
+                isPenalty: true
+            });
+            
+            $('hitmanAction').innerHTML = `
+                <div class="card" style="border-color:rgba(249,115,115,0.6);">
+                    <div class="card-title" style="color:var(--danger);">❌ Mauvaise cible !</div>
+                    <p style="font-size:0.85rem;">Tu as éliminé un civil. Un indice sur ton identité a été révélé à tous :</p>
+                    <p style="font-size:0.9rem;color:var(--danger);margin-top:6px;"><strong>${label} = ${val}</strong></p>
+                </div>
+            `;
+        }
+        
+        stopTurnTimer();
+        $('minigameContainer').style.display = 'none';
+        $('btnEndTurn').style.display = 'inline-flex';
+    });
+
+    $('btnGoToVote').addEventListener('click', () => {
+        // Réinitialiser l'ordre de vote
+        state.voteOrder = state.investigationOrder.filter(idx => !state.eliminatedPlayers.includes(idx));
+        state.currentVoter = 0;
+        
+        // Préparer l'écran de vote
+        const container = $('voteButtons');
+        container.innerHTML = '';
+        container.style.display = 'flex';
+        
+        const alivePlayers = state.players.filter((p, idx) => !state.eliminatedPlayers.includes(idx));
+        
+        // Message pour le premier votant
+        alert(`Passe le téléphone à ${state.players[state.voteOrder[0]].name} pour le vote.`);
+        
+        // Générer les boutons de vote
+        alivePlayers.forEach(player => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-ghost';
+            btn.style.cssText = 'width:100%;text-align:left;justify-content:flex-start;margin-bottom:6px;';
+            btn.innerHTML = `
+                <span style="width:28px;height:28px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-right:10px;font-size:0.85rem;">
+                    ${player.name.charAt(0)}
+                </span>
+                ${player.name}
+            `;
+            btn.addEventListener('click', () => {
+                const voter = state.players[state.voteOrder[state.currentVoter]];
+                state.votes[voter.id] = player.id;
+                
+                // Afficher confirmation temporairement
+                $('voteConfirmation').style.display = 'block';
+                $('votedPlayerName').textContent = player.name;
+                $('voteButtons').style.display = 'none';
+                
+                state.currentVoter++;
+                
+                setTimeout(() => {
+                    if (state.currentVoter >= state.voteOrder.length) {
+                        // Tous ont voté
+                        $('btnRevealVotes').style.display = 'inline-flex';
+                        $('voteConfirmation').innerHTML = '<p style="color:var(--accent);">Tous les votes sont enregistrés !</p>';
+                    } else {
+                        // Passer au suivant
+                        $('voteConfirmation').style.display = 'none';
+                        $('voteButtons').style.display = 'flex';
+                        alert(`Passe le téléphone à ${state.players[state.voteOrder[state.currentVoter]].name}`);
+                    }
+                }, 800);
+            });
+            container.appendChild(btn);
+        });
+        
+        $('voteConfirmation').style.display = 'none';
+        $('btnRevealVotes').style.display = 'none';
+        showScreen('screen-vote');
+    });
+
+    $('btnRevealVotes').addEventListener('click', revealVotes);
+
+    $('btnNextRound').addEventListener('click', nextRound);
+
+    $('btnNewGame').addEventListener('click', resetGame);
+
+    function resetGame() {
+        // Reset complet
+        state.numPlayers = 3;
+        state.players = [];
+        state.hitmanIndex = null;
+        state.targetIndex = null;
+        state.contractAttributes = [];
+        state.currentRevealIndex = 0;
+        state.gamePhase = 'setup';
+        state.currentRound = 0;
+        state.currentPlayerTurn = 0;
+        state.investigationOrder = [];
+        state.journal = [];
+        state.eliminatedPlayers = [];
+        state.hitmanAttempted = false;
+        state.hitmanSuccess = false;
+        state.votes = {};
+        state.gameOver = false;
+        state.winner = null;
+        state.voteOrder = null;
+        state.currentVoter = 0;
+        
+        $('playerCount').value = '3';
+        showScreen('screen-setup');
+    }
+
+    // Enregistrement du service worker pour la PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/hitman-social/service-worker.js')
+                .then(reg => {
+                    console.log('Service worker enregistré avec le scope :', reg.scope);
+                })
+                .catch(err => {
+                    console.error('Échec de l\'enregistrement du service worker :', err);
+                });
+        });
+    }
+    
+})();
+</script>
+</body>
+</html>
+        
