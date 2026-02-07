@@ -8,14 +8,15 @@ const URLS_TO_CACHE = [
   '/icons/icon-512.png',
 ];  
 
-// Installation : on pré-cache les fichiers critiques
+// INSTALL : pré-cache les fichiers critiques
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(URLS_TO_CACHE))
   );
-  self.skipWaiting(); // optionnel, force l'activation plus rapide
+  self.skipWaiting();
 });
 
+// ACTIVATE : nettoyage des anciens caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -26,39 +27,35 @@ self.addEventListener('activate', event => {
       )
     )
   );
-  self.clients.claim(); // prend le contrôle immédiatement des pages ouvertes
+  self.clients.claim();
 });
 
+// FETCH : stratégie cache d'abord puis réseau + mise en cache dynamique
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(resp => resp || fetch(event.request))
-  );
-});
-
-// Interception des requêtes : stratégie cache d'abord, puis réseau
-self.addEventListener('fetch', (event) => {
   const request = event.request;
 
-  // Ne pas intercepter les requêtes non GET
+  // Laisser passer les requêtes non GET
   if (request.method !== 'GET') {
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
+    caches.match(request).then(cachedResponse => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(request).then((networkResponse) => {
-        // On met en cache les nouvelles ressources pour les prochains lancements
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, networkResponse.clone());
-          return networkResponse;
+
+      return fetch(request)
+        .then(networkResponse => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, networkResponse.clone());
+            return networkResponse;
+          });
+        })
+        .catch(() => {
+          // Fallback optionnel si hors-ligne
+          return caches.match('/contract-game.html');
         });
-      }).catch(() => {
-        // Optionnel : renvoyer une page fallback si hors ligne et pas dans le cache
-        return caches.match('./index.html');
-      });
     })
   );
 });
