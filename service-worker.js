@@ -1,31 +1,37 @@
-const CACHE_NAME = 'hitman-social-v1';
-const ASSETS_TO_CACHE = [
-    '/hitman-social/',
-    '/hitman-social/index.html',
-    '/hitman-social/manifest.webmanifest',
-    '/hitman-social/icon-192.png',
-    '/hitman-social/icon-512.png'
-  ];  
+const CACHE_NAME = 'hitman-social-v2.5.5';
+const URLS_TO_CACHE = [
+  '/',
+  '/contract-game.html',
+  '/styles.css',
+  '/script.js',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+];  
 
 // Installation : on pré-cache les fichiers critiques
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(URLS_TO_CACHE))
   );
+  self.skipWaiting(); // optionnel, force l'activation plus rapide
 });
 
-// Activation : nettoyage des anciens caches si besoin
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
+    caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
       )
     )
+  );
+  self.clients.claim(); // prend le contrôle immédiatement des pages ouvertes
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(resp => resp || fetch(event.request))
   );
 });
 
