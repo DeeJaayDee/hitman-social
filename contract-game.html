@@ -17,6 +17,8 @@
             --text-muted: #9ca3af;
             --danger: #f97373;
             --hitman: #facc15;
+            --success: #22c55e;
+            --warning: #f59e0b;
             --radius-lg: 18px;
             --radius-md: 12px;
             --shadow-soft: 0 18px 35px rgba(15, 23, 42, 0.8);
@@ -38,6 +40,19 @@
             align-items: stretch;
             justify-content: center;
         }
+        /* Variantes de fond selon l'humeur du jeu */
+        body.mood-default {
+            background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
+        }
+
+        body.mood-success {
+            background: radial-gradient(circle at top, #022c22 0, #02201a 55%, #000 100%);
+        }
+
+        body.mood-fail {
+            background: radial-gradient(circle at top, #3b0f1f 0, #200214 55%, #000 100%);
+        }
+        
 
         .app-shell {
             width: 100%;
@@ -47,6 +62,8 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            position: relative;
+            z-index: 1;
         }
 
         header {
@@ -286,6 +303,22 @@
             padding: 10px 11px;
             border: 1px solid rgba(30, 64, 175, 0.8);
         }
+        #clueText,
+        .profile-card,
+        .profile-card * {
+            color: var(--text) !important;
+        }
+
+        /* Lisibilité des indices et cartes d'info */
+        .profile-card,
+        .profile-card p,
+        .profile-card li,
+        .clue-card,
+        .clue-card p,
+        .clue-card span {
+            color: var(--text);
+        }
+
 
         .profile-title {
             font-size: 0.86rem;
@@ -428,9 +461,152 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 15px rgba(15,23,42,0.7);
         }
+        /* ========== NOUVEAUX STYLES V2.0 ========== */
+
+        /* Tableau de déduction */
+        .deduction-table {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .deduction-grid {
+            display: grid;
+            grid-template-columns: auto repeat(4, 1fr);
+            gap: 4px;
+            font-size: 0.75rem;
+            min-width: 100%;
+        }
+
+        .deduction-cell {
+            padding: 6px 4px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 4px;
+        }
+
+        .deduction-header {
+            font-weight: 600;
+            background: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .deduction-player {
+            font-weight: 600;
+            text-align: left;
+            padding-left: 8px;
+        }
+
+        /* Indicateurs de fiabilité */
+        .reliability-verified {
+            color: var(--success);
+        }
+
+        .reliability-claimed {
+            color: var(--warning);
+        }
+
+        .reliability-suspicious {
+            color: var(--danger);
+        }
+
+        /* Questions à choix multiples */
+        .mcq-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .mcq-option {
+            padding: 12px;
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-radius: var(--radius-md);
+            background: rgba(15, 23, 42, 0.6);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .mcq-option:hover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .mcq-option.selected {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.2);
+        }
+
+        .mcq-option.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .mcq-option.incorrect {
+            border-color: var(--danger);
+            background: rgba(249, 115, 115, 0.2);
+        }
+
+        /* Badge de capacité spéciale */
+        .special-ability-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            background: rgba(250, 204, 21, 0.2);
+            border: 1px solid rgba(250, 204, 21, 0.6);
+            color: var(--hitman);
+        }
+
+        .special-ability-badge.used {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        /* Filtres du journal */
+        .journal-filters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .filter-btn {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--text-muted);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: #0b1120;
+            border-color: var(--accent);
+        }
     </style>
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
+<body class="mood-default">
+<div id="bg3d-container" style="
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+"></div>
 <div class="app-shell">
     <!-- Timer de tour (mini-jeu) -->
     <div id="turnTimer" class="timer-container">
@@ -439,9 +615,9 @@
     <header>
         <div class="title-block">
             <div class="title">Hitman Social</div>
-            <div class="subtitle">Prototype de distribution des rôles</div>
+            <div class="subtitle">Version améliorée</div>
         </div>
-        <div class="badge-beta">Prototype</div>
+        <div class="badge-beta">v2.5.5</div>
     </header>
 
     <main>
@@ -526,7 +702,7 @@
                     Lorsque la personne est prête, appuie sur le bouton ci-dessous.
                 </p>
 
-                <div class="btn-row">
+                <div class="btn-row" style="margin-top: 14px;">
                     <button class="btn btn-primary btn-full" id="btnRevealForPlayer">
                         C'est bon, je suis prêt
                     </button>
@@ -577,16 +753,16 @@
                 </div>
 
                 <p>
-                    Vous pouvez maintenant démarrer la partie "en vrai" avec ce
-                    prototype : un joueur est le tueur, les autres sont des civils.
+                    Vous pouvez maintenant démarrer la partie ! Un joueur est le tueur, les autres sont des civils.
                 </p>
 
                 <div class="profile-card">
-                    <div class="profile-title">Rappel (pour les joueurs)</div>
+                    <div class="profile-title">🎯 Nouveautés de cette version</div>
                     <ul class="profile-list">
-                        <li>• <strong>Un seul tueur</strong> dans la partie.</li>
-                        <li>• Les civils ne connaissent pas l'identité du tueur.</li>
-                        <li>• Le tueur a reçu un <strong>contrat partiel</strong> sur sa cible.</li>
+                        <li>• <strong>Questions à choix multiples</strong> (plus stratégiques)</li>
+                        <li>• <strong>Système de témoins</strong> (interroger les autres)</li>
+                        <li>• <strong>Tableau de déduction</strong> pour organiser les indices</li>
+                        <li>• Le Hitman peut <strong>bluffer</strong> avec des faux indices !</li>
                     </ul>
                 </div>
 
@@ -647,23 +823,105 @@
                         <!-- Indices pour ce joueur -->
                     </div>
                 </div>
-                
+                <!-- NOUVEAU : Choix de l'action -->
+                <div id="actionChoice" style="display: none;">
+                    <div class="card" style="border-color: rgba(56,189,248,0.5); margin-bottom: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem; margin-bottom: 8px;">🎯 Choisis ton action</div>
+                        <div class="mcq-options">
+                            <button class="mcq-option" id="btnActionMinigame">
+                                🎮 <strong>Jouer au mini-jeu</strong>
+                                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">
+                                    Gagne un indice sur un joueur aléatoire
+                                </div>
+                            </button>
+                            <button class="mcq-option" id="btnActionWitness">
+                                🗣️ <strong>Interroger un joueur</strong>
+                                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">
+                                    Pose une question directe (réponse obligatoire)
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOUVEAU : Système de témoins -->
+                <div id="witnessSystem" style="display: none;">
+                    <div class="card" style="border-color: rgba(56,189,248,0.5); margin-bottom: 12px;">
+                        <div class="card-title" style="font-size: 0.9rem; margin-bottom: 8px;">🗣️ Interroger un joueur</div>
+                        <p style="font-size:0.85rem;margin-bottom:10px;">Choisis un joueur et pose-lui une question. Il doit répondre honnêtement !</p>
+                        
+                        <label style="font-size:0.8rem;margin-bottom:4px;display:block;">Quel joueur veux-tu interroger ?</label>
+                        <select id="witnessTargetSelect" style="margin-bottom:10px;">
+                            <option value="">-- Choisir un joueur --</option>
+                        </select>
+
+                        <label style="font-size:0.8rem;margin-bottom:4px;display:block;">Quelle question veux-tu poser ?</label>
+                        <select id="witnessQuestionSelect" style="margin-bottom:10px;">
+                            <option value="">-- Choisir une question --</option>
+                            <option value="gender">Quel est ton genre ?</option>
+                            <option value="accessory">Quel accessoire portes-tu ?</option>
+                            <option value="job">Quel est ton métier ?</option>
+                            <option value="trait">Quel est ton trait de caractère ?</option>
+                        </select>
+
+                        <button class="btn btn-primary btn-full" id="btnAskWitness">
+                            Poser la question
+                        </button>
+                    </div>
+                </div>
+
+                <div id="witnessAnswer" style="display: none; margin-bottom: 12px;">
+                    <!-- Réponse du témoin -->
+                </div>
                 <div id="minigameContainer" style="display: none;">
                     <div class="card" style="border-color: rgba(250,204,21,0.5);">
                         <div class="card-title" style="font-size: 0.9rem; margin-bottom: 8px;">🎮 Mini-jeu pour gagner un indice</div>
                         <div id="minigameContent"></div>
                     </div>
                 </div>
-                
-                <div id="clueReveal" style="display: none; margin-top: 12px;" class="profile-card">
+                <div id="witnessAction" style="display:none; margin-top:10px;">
+                    <div class="card" style="border-color:rgba(249,250,115,0.6); background:radial-gradient(circle at top left, rgba(250,250,115,0.1), transparent 55%);">
+                      <div class="card-title" style="font-size:0.9rem;">👁️ Appeler un témoin</div>
+                      <p style="font-size:0.8rem;margin:4px 0 8px;">
+                        Une fois par partie, tu peux obtenir un <strong>indice fiable</strong> sans mini‑jeu.
+                      </p>
+                      <button class="btn btn-primary btn-full" id="btnUseWitness">
+                        Utiliser mon témoin
+                      </button>
+                    </div>
+                </div>                  
+                <div id="clueReveal" style="display:none;margin-top:12px;" class="profile-card">
                     <div class="profile-title">🔍 Indice découvert</div>
-                    <p id="clueText" style="margin: 4px 0; font-size: 0.9rem;"></p>
+                    <p id="clueText" style="margin:4px 0;font-size:0.9rem;"></p>
+                    
+                    <div id="clueActionsRow" class="btn-row" style="margin-top:10px;display:none;">
+                        <button class="btn btn-primary" id="btnRevealClue">
+                        Révéler au journal
+                        </button>
+                        <button class="btn btn-ghost" id="btnKeepClue">
+                        Garder pour moi
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="hitmanAction" style="display: none; margin-top: 12px;">
                     <div class="card" style="border-color: rgba(249,115,115,0.6); background: radial-gradient(circle at top left, rgba(249,115,115,0.1), transparent 50%);">
-                        <div class="card-title" style="color: var(--danger); font-size: 0.9rem;">🗡️ Action du Hitman</div>
-                        <p style="font-size: 0.85rem; margin: 6px 0;">Tu peux tenter d'éliminer un joueur. Si tu te trompes, tes indices seront révélés !</p>
+                        <div class="card-title" style="color: var(--danger); font-size: 0.9rem; margin-bottom: 8px;">
+                            🗡️ Actions du Hitman
+                        </div>
+                
+                        <!-- Capacités spéciales -->
+                        <div id="hitmanSpecialAbilities" style="margin-bottom: 12px;">
+                            <p style="font-size:0.8rem;margin-bottom:6px;">Capacités spéciales :</p>
+                            <div style="display:flex;flex-direction:column;gap:6px;">
+                                <button class="btn btn-ghost btn-full" id="btnPlantFakeClue" style="font-size:0.8rem;padding:8px 12px;">
+                                    <span class="special-ability-badge" id="fakeClueAbility">🎭 Planter un faux indice</span>
+                                </button>
+                            </div>
+                        </div>
+                
+                        <hr style="border:none;border-top:1px solid rgba(148,163,184,0.2);margin:12px 0;">
+                
+                        <p style="font-size: 0.85rem; margin: 6px 0;">Tu peux tenter d'éliminer un joueur. Si tu te trompes, un de tes attributs sera révélé !</p>
                         <select id="hitmanTargetSelect" style="margin-top: 8px; margin-bottom: 8px;">
                             <option value="">-- Choisir une cible --</option>
                         </select>
@@ -691,18 +949,53 @@
                         <div class="card-subtitle">Indices collectés – discutez avant de voter</div>
                     </div>
                 </div>
-                
-                <div id="journalEntries" style="max-height: 300px; overflow-y: auto;">
-                    <p class="hint" style="text-align: center; padding: 20px;">Aucun index pour le moment...</p>
+                <!-- NOUVEAU : Onglets Vue Liste / Vue Tableau -->
+                <div style="display:flex;gap:8px;margin-bottom:12px;">
+                    <button class="filter-btn active" id="btnViewList">📋 Liste</button>
+                    <button class="filter-btn" id="btnViewTable">📊 Tableau</button>
+                </div>
+                <!-- NOUVEAU : Filtres -->
+                <div class="journal-filters" id="journalFilters">
+                    <button class="filter-btn active" data-filter="all">Tous</button>
+                    <button class="filter-btn" data-filter="gender">Genre</button>
+                    <button class="filter-btn" data-filter="accessory">Accessoire</button>
+                    <button class="filter-btn" data-filter="job">Métier</button>
+                    <button class="filter-btn" data-filter="trait">Caractère</button>
+                </div>
+                <!-- Vue Liste -->
+                <div id="journalListView" style="max-height: 300px; overflow-y: auto;">
+                    <div id="journalEntries">
+                        <p class="hint" style="text-align: center; padding: 20px;">Aucun indice pour le moment...</p>
+                    </div>
+                </div>
+
+                <!-- NOUVEAU : Vue Tableau de déduction -->
+                <div id="journalTableView" style="display:none;">
+                    <div class="deduction-table">
+                        <div id="deductionGrid" class="deduction-grid">
+                            <!-- Tableau généré dynamiquement -->
+                        </div>
+                    </div>
+                    <p class="hint" style="margin-top:8px;font-size:0.7rem;">
+                        <span class="reliability-verified">✓ Vérifié</span> · 
+                        <span class="reliability-claimed">⚠ Déclaré</span> · 
+                        <span class="reliability-suspicious">✗ Suspect</span>
+                    </p>
                 </div>
                 
                 <p class="hint" style="margin-top:8px;">
                     Prenez quelques minutes pour discuter ensemble de ces indices avant de passer au vote.
                 </p>
                 
-                <div class="btn-row" style="margin-top: 12px;">
+                <div class="btn-row" style="margin-top: 14px;">
                     <button class="btn btn-primary btn-full" id="btnGoToVote">
                         Passer au vote
+                    </button>
+                </div>
+
+                <div class="btn-row" style="margin-top: 6px;">
+                    <button class="btn btn-ghost btn-full" id="btnSkipVote">
+                        Sauter ce vote (personne n'est éliminé)
                     </button>
                 </div>
             </div>
@@ -799,6 +1092,7 @@
         targetIndex: null,
         contractAttributes: [],
         currentRevealIndex: 0,
+        witnessUses: {}, // key = playerIndex, value = true/false
         
         // NOUVEAU : gestion des rounds
         gamePhase: 'setup', // setup, reveal, investigation, vote, resolution, end
@@ -807,6 +1101,7 @@
         currentPlayerTurn: 0, // index du joueur dont c'est le tour en phase investigation
         investigationOrder: [], // ordre aléatoire des joueurs par round
         journal: [], // {round, player, type, content, target}
+        lastClueIndex: null,
         eliminatedPlayers: [], // indices des joueurs éliminés
         hitmanAttempted: false, // le hitman a-t-il tenté d'éliminer ce round ?
         hitmanSuccess: false,
@@ -815,7 +1110,16 @@
         clueGivenThisTurn: false,
         votes: {}, // playerId -> votedPlayerId
         gameOver: false,
-        winner: null // 'hitman' ou 'civils'
+        winner: null, // 'hitman' ou 'civils'
+        // NOUVEAU v2.0
+        hitmanAbilities: {
+            fakeClueUsed: false,
+            fakeCluesRemaining: 1
+        },
+        currentJournalFilter: 'all',
+        currentJournalView: 'list', // 'list' ou 'table'
+        witnessAsked: false,
+        witnessAnswer: null
     };
 
 
@@ -861,7 +1165,8 @@
                 id: idx,
                 name,
                 role: null,
-                profile: null
+                profile: null,
+                clues: [] // NOUVEAU : stocke les indices personnels du joueur
             });
         });
         state.players = players;
@@ -918,15 +1223,14 @@
     // Génère un indice sur un joueur aléatoire (sauf soi-même)
     function generateClue(forPlayerIndex) {
         const otherPlayers = state.players
-            .map((p, idx) => ({...p, index: idx}))
-            .filter(p => p.index !== forPlayerIndex && !state.eliminatedPlayers.includes(p.index));
-        
+        .map((p, idx) => ({...p, index: idx}))
+        .filter(p => p.index !== forPlayerIndex && !state.eliminatedPlayers.includes(p.index));
+    
         if (otherPlayers.length === 0) return null;
         
         const target = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
         const profile = target.profile;
         
-        // Choisit un attribut au hasard
         const attrs = ['gender', 'accessory', 'job', 'trait'];
         const attr = attrs[Math.floor(Math.random() * attrs.length)];
         let attrLabel, attrValue;
@@ -938,10 +1242,11 @@
             case 'trait': attrLabel = 'Caractère'; attrValue = profile.trait; break;
         }
         
-        // 15% de chance que l'indice soit faux (pour créer le doute)
-        const isFalse = Math.random() < 0.15;
+        // AMÉLIORATION : Réduire probabilité de faux indice de 15% à 10%
+        const isFalse = Math.random() < 0.10;
+        const originalValue = attrValue;
+        
         if (isFalse) {
-            // Prend une valeur aléatoire différente
             const possibleValues = attr === 'gender' ? genders : 
                                 attr === 'accessory' ? accessories :
                                 attr === 'job' ? jobs : traits;
@@ -954,11 +1259,73 @@
             targetPlayer: target.name,
             targetIndex: target.index,
             attribute: attrLabel,
+            attributeKey: attr,
             value: attrValue,
-            isFalse: isFalse
+            originalValue: originalValue,
+            isFalse: isFalse,
+            reliability: isFalse ? 'suspicious' : 'verified'
         };
     }
+    // ========== VÉRIFICATION : Le Hitman peut-il se découvrir lui-même ? ==========
+    // NON ! On doit l'exclure des indices générés et des questions posées
 
+    // Dans generateMultipleChoiceQuestion() :
+    function generateMultipleChoiceQuestion(forPlayerIndex) {
+        const otherPlayers = state.players
+            .map((p, idx) => ({...p, index: idx}))
+            .filter(p => p.index !== forPlayerIndex && !state.eliminatedPlayers.includes(p.index));
+        
+        // Le Hitman ne recevra jamais de question sur lui-même ✅
+        if (otherPlayers.length === 0) return null;
+        
+        const target = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+        const attrs = ['gender', 'accessory', 'job', 'trait'];
+        const attr = attrs[Math.floor(Math.random() * attrs.length)];
+        
+        let attrLabel, correctValue, allValues;
+        const profile = target.profile;
+        
+        switch(attr) {
+            case 'gender': 
+                attrLabel = 'Genre'; 
+                correctValue = profile.gender;
+                allValues = [...genders];
+                break;
+            case 'accessory': 
+                attrLabel = 'Accessoire'; 
+                correctValue = profile.accessory;
+                allValues = [...accessories];
+                break;
+            case 'job': 
+                attrLabel = 'Métier'; 
+                correctValue = profile.job;
+                allValues = [...jobs];
+                break;
+            case 'trait': 
+                attrLabel = 'Caractère'; 
+                correctValue = profile.trait;
+                allValues = [...traits];
+                break;
+        }
+        
+        // Génère 3 options + l'option "Je ne sais pas"
+        shuffleArray(allValues);
+        let options = allValues.slice(0, 3);
+        if (!options.includes(correctValue)) {
+            options[Math.floor(Math.random() * 3)] = correctValue;
+        }
+        options.push("❓ Je ne sais pas");
+        
+        return {
+            question: `Quel est le ${attrLabel.toLowerCase()} de ${target.name} ?`,
+            options: options,
+            correctAnswer: correctValue,
+            targetPlayer: target.name,
+            targetIndex: target.index,
+            attribute: attrLabel,
+            attributeKey: attr
+        };
+    }
     // Vérifie les conditions de victoire
     function checkVictoryConditions() {
         // Victoire Hitman : cible éliminée
@@ -967,7 +1334,13 @@
             state.winner = 'hitman';
             return true;
         }
-        
+        // Victoire Hitman : sa cible a été éliminée (par vote ou autre)
+        if (state.eliminatedPlayers.includes(state.targetIndex)) {
+            state.gameOver = true;
+            state.winner = 'hitman';
+            return true;
+        }
+
         // Victoire Hitman : survie jusqu'à 2 joueurs restants
         const alivePlayers = state.players.filter((p, idx) => !state.eliminatedPlayers.includes(idx));
         if (alivePlayers.length <= 2 && !state.eliminatedPlayers.includes(state.hitmanIndex)) {
@@ -1010,11 +1383,154 @@
     function generateReflexGame() {
         return {
             type: 'reflex',
-            state: 'waiting', // waiting, ready, clicked, done
+            state: 'instruction', // NOUVEAU : commence par les instructions
             startTime: 0,
             reactionTime: 0,
-            timeoutId: null
+            timeoutId: null,
+            clickedBeforeGreen: false
         };
+    }
+
+    function renderReflexGame() {
+        currentMinigame = generateReflexGame();
+        const container = $('minigameContent');
+        
+        // NOUVEAU : Afficher les instructions d'abord
+        container.innerHTML = `
+            <div style="text-align:center;padding:20px;">
+                <div style="font-size:3rem;margin-bottom:12px;">⚡</div>
+                <h3 style="margin:0 0 8px 0;font-size:1.1rem;">Test de Réflexe</h3>
+                <p style="margin:0 0 12px 0;font-size:0.85rem;color:var(--text-muted);">
+                    Clique dès que le cercle devient vert !
+                </p>
+                <div style="background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:10px;margin-bottom:16px;">
+                    <p style="margin:0;font-size:0.8rem;color:var(--accent);">
+                        <strong>🎯 Pour gagner :</strong> Réagis en moins de 800ms
+                    </p>
+                    <p style="margin:6px 0 0 0;font-size:0.75rem;color:var(--danger);">
+                        ⚠️ Si tu cliques avant le vert = échec !
+                    </p>
+                </div>
+                <button class="btn btn-primary btn-full" id="btnStartReflex">
+                    C'est parti ! 🚀
+                </button>
+            </div>
+        `;
+        
+        $('btnStartReflex').addEventListener('click', () => {
+            startReflexGameActual();
+        });
+    }
+
+    function startReflexGameActual() {
+        const container = $('minigameContent');
+        
+        container.innerHTML = `
+            <div style="text-align:center;">
+                <div id="reflexCircle" style="width:120px;height:120px;border-radius:50%;background:#334155;margin:20px auto;transition:background 0.1s;border:4px solid rgba(148,163,184,0.3);"></div>
+                <p id="reflexText" style="font-size:1.1rem;margin:16px 0;font-weight:600;">Prépare-toi...</p>
+                <p id="reflexHint" style="font-size:0.8rem;color:var(--text-muted);"></p>
+            </div>
+        `;
+        
+        const circle = $('reflexCircle');
+        const text = $('reflexText');
+        const hint = $('reflexHint');
+        
+        currentMinigame.state = 'waiting';
+        
+        // AUTO-START après 2 secondes
+        setTimeout(() => {
+            currentMinigame.state = 'red';
+            circle.style.background = '#ef4444';
+            circle.style.borderColor = '#ef4444';
+            text.textContent = "Attends le VERT...";
+            hint.textContent = "Ne clique pas maintenant !";
+            
+            // Délai aléatoire entre 2 et 5 secondes
+            const delay = 2000 + Math.random() * 3000;
+            
+            currentMinigame.timeoutId = setTimeout(() => {
+                if (currentMinigame.state === 'red') {
+                    currentMinigame.state = 'green';
+                    currentMinigame.startTime = Date.now();
+                    circle.style.background = '#22c55e';
+                    circle.style.borderColor = '#22c55e';
+                    text.textContent = "CLIQUE MAINTENANT !";
+                    hint.textContent = "";
+                }
+            }, delay);
+        }, 2000);
+        
+        // Gestionnaire de clic
+        circle.addEventListener('click', handleReflexClick);
+    }
+
+    function handleReflexClick() {
+        const circle = $('reflexCircle');
+        const text = $('reflexText');
+        const hint = $('reflexHint');
+        
+        if (currentMinigame.state === 'red') {
+            // TROP TÔT !
+            clearTimeout(currentMinigame.timeoutId);
+            currentMinigame.clickedBeforeGreen = true;
+            currentMinigame.state = 'failed';
+            
+            circle.style.background = '#7f1d1d';
+            circle.style.borderColor = 'var(--danger)';
+            text.textContent = "❌ Trop tôt ! Tu as cliqué avant le vert !";
+            hint.textContent = "Réessaye au prochain round...";
+            hint.style.color = 'var(--danger)';
+            
+            // Shake animation
+            circle.style.animation = 'shake 0.5s';
+            
+            setTimeout(() => {
+                endPlayerTurnDirectly();
+            }, 2000);
+            
+        } else if (currentMinigame.state === 'green') {
+            // CLIC VALIDE
+            const time = Date.now() - currentMinigame.startTime;
+            currentMinigame.reactionTime = time;
+            currentMinigame.state = 'done';
+            
+            circle.removeEventListener('click', handleReflexClick);
+            
+            if (time > 800) {
+                // TROP LENT
+                circle.style.background = '#b45309';
+                circle.style.borderColor = 'var(--warning)';
+                text.textContent = `⏱️ ${time}ms - Trop lent !`;
+                hint.textContent = "Il fallait moins de 800ms...";
+                hint.style.color = 'var(--warning)';
+                
+                setTimeout(() => {
+                    endPlayerTurnDirectly();
+                }, 2000);
+                
+            } else {
+                // RÉUSSI !
+                circle.style.background = '#16a34a';
+                circle.style.borderColor = 'var(--success)';
+                text.textContent = `✅ ${time}ms - Excellent !`;
+                
+                if (time < 200) {
+                    hint.textContent = "⚡ Réflexes surhumains !";
+                } else if (time < 400) {
+                    hint.textContent = "🎯 Très rapide !";
+                } else {
+                    hint.textContent = "👍 Bien joué !";
+                }
+                hint.style.color = 'var(--success)';
+                
+                // Particules de succès
+                createSimpleConfetti();
+                
+                setTimeout(rewardClue, 1500);
+            }
+        }
     }
 
     // Mini-jeu 3 : Code couleur (retenir une courte séquence)
@@ -1030,6 +1546,175 @@
             sequence,
             userInput: [],
             step: 'show' // show -> input -> done
+        };
+    }
+    function renderColorCodeGame() {
+        currentMinigame = generateColorCodeGame();
+        const container = $('minigameContent');
+        
+        // NOUVEAU : Instructions d'abord
+        container.innerHTML = `
+            <div style="text-align:center;padding:20px;">
+                <div style="font-size:3rem;margin-bottom:12px;">🎨</div>
+                <h3 style="margin:0 0 8px 0;font-size:1.1rem;">Code Couleur</h3>
+                <p style="margin:0 0 12px 0;font-size:0.85rem;color:var(--text-muted);">
+                    Mémorise la séquence puis reproduis-la
+                </p>
+                <div style="background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:10px;margin-bottom:16px;">
+                    <p style="margin:0;font-size:0.8rem;color:var(--accent);">
+                        <strong>🎯 Pour gagner :</strong> Retrouve l'ordre exact des 4 symboles
+                    </p>
+                    <p style="margin:6px 0 0 0;font-size:0.75rem;">
+                        Tu auras 5 secondes pour mémoriser !
+                    </p>
+                </div>
+                <button class="btn btn-primary btn-full" id="btnStartColorCode">
+                    C'est parti ! 🚀
+                </button>
+            </div>
+        `;
+        
+        $('btnStartColorCode').addEventListener('click', () => {
+            startColorCodeGameActual();
+        });
+    }
+
+    function startColorCodeGameActual() {
+        const container = $('minigameContent');
+        
+        // Afficher la séquence avec countdown
+        container.innerHTML = `
+            <p style="font-size:0.8rem;margin-bottom:8px;text-align:center;color:var(--accent);">
+                <strong>Mémorise cette séquence :</strong>
+            </p>
+            <div id="codeSequence" style="font-size:2rem;text-align:center;margin-bottom:12px;padding:20px;background:var(--accent-soft);border-radius:12px;border:2px solid var(--accent);">
+                ${currentMinigame.sequence.join(' ')}
+            </div>
+            <p id="countdownText" style="text-align:center;color:var(--accent);font-size:1.4rem;font-weight:700;margin:0;">
+                <span id="countdown">5</span>s
+            </p>
+            <div id="codeInput" style="display:none;">
+                <div id="codeButtons" style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;margin-top:16px;">
+                    ${['🔴','🟢','🔵','🟡'].map(sym => `
+                        <button class="btn btn-ghost code-btn" data-sym="${sym}" style="padding:12px 16px;font-size:1.5rem;">${sym}</button>
+                    `).join('')}
+                </div>
+                <div style="text-align:center;font-size:1rem;margin-bottom:12px;">
+                    Ta réponse : <span id="codeInputDisplay" style="font-size:1.3rem;color:var(--accent);">_ _ _ _</span>
+                </div>
+                <p id="codeStatus" style="text-align:center;font-size:0.8rem;color:var(--text-muted);">
+                    Clique sur les symboles dans le bon ordre
+                </p>
+            </div>
+        `;
+        
+        // Compte à rebours de 5 secondes
+        let timeLeft = 5;
+        const countdownInterval = setInterval(() => {
+            timeLeft--;
+            const countdownEl = $('countdown');
+            if (countdownEl) {
+                countdownEl.textContent = timeLeft;
+                
+                // Effet visuel sur les dernières secondes
+                if (timeLeft <= 2) {
+                    $('countdownText').style.color = 'var(--danger)';
+                    $('countdownText').style.animation = 'pulse 0.5s infinite';
+                }
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                hideSequenceAndShowInput();
+            }
+        }, 1000);
+    }
+
+    function hideSequenceAndShowInput() {
+        const seqDiv = $('codeSequence');
+        const countdownDiv = $('countdownText');
+        const inputDiv = $('codeInput');
+        
+        if (seqDiv) {
+            seqDiv.style.display = 'none';
+        }
+        if (countdownDiv) {
+            countdownDiv.style.display = 'none';
+        }
+        if (inputDiv) {
+            inputDiv.style.display = 'block';
+            inputDiv.style.animation = 'fadeInUp 0.3s';
+        }
+        
+        // Attacher les listeners
+        document.querySelectorAll('.code-btn').forEach(btn => {
+            btn.addEventListener('click', handleColorCodeClick);
+        });
+    }
+
+    function handleColorCodeClick(e) {
+        if (currentMinigame.step === 'done') return;
+        
+        const sym = e.target.dataset.sym;
+        currentMinigame.userInput.push(sym);
+        
+        // Mise à jour affichage
+        const filled = currentMinigame.userInput.concat(
+            Array(4 - currentMinigame.userInput.length).fill('_')
+        );
+        $('codeInputDisplay').textContent = filled.join(' ');
+        
+        // Effet visuel sur le bouton cliqué
+        e.target.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            e.target.style.transform = 'scale(1)';
+        }, 100);
+        
+        if (currentMinigame.userInput.length === 4) {
+            // Vérification
+            const ok = currentMinigame.userInput.every(
+                (s, i) => s === currentMinigame.sequence[i]
+            );
+            currentMinigame.step = 'done';
+            
+            const status = $('codeStatus');
+            if (ok) {
+                status.textContent = "✅ Parfait ! Indice gagné !";
+                status.style.color = 'var(--success)';
+                status.style.fontSize = '1rem';
+                status.style.fontWeight = '600';
+                
+                createSimpleConfetti();
+                
+                setTimeout(rewardClue, 1500);
+            } else {
+                status.textContent = "❌ Incorrect. Réessaye !";
+                status.style.color = 'var(--danger)';
+                
+                setTimeout(() => {
+                    currentMinigame.userInput = [];
+                    currentMinigame.step = 'input';
+                    $('codeInputDisplay').textContent = '_ _ _ _';
+                    status.textContent = 'Clique sur les symboles dans le bon ordre';
+                    status.style.color = 'var(--text-muted)';
+                    status.style.fontSize = '0.8rem';
+                    status.style.fontWeight = '400';
+                }, 1500);
+            }
+        }
+    }
+    // Mini-jeu 4 : Puzzle
+    function generatePuzzleGame() {
+        const pieces = ['①', '②', '③', '④', '⑤', '⑥'];
+        shuffleArray(pieces);
+        const correct = ['①', '②', '③', '④', '⑤', '⑥']; // Ordre attendu
+        
+        return {
+            type: 'puzzle',
+            pieces: pieces.map((p, idx) => ({id: idx, icon: p, position: idx})),
+            correctOrder: correct,
+            moves: 0,
+            selected: null
         };
     }
 
@@ -1069,9 +1754,9 @@
         profileCard.className = "profile-card";
 
         const profileTitle = document.createElement("div");
-        profileTitle.className = "profile-title";
+        // MODIFICATION ICI
         profileTitle.textContent = isHitman
-            ? "Instructions pour le tueur"
+            ? "📋 Ton identité (à cacher aux autres !)"  // CHANGÉ
             : "Ton profil secret";
 
         const list = document.createElement("ul");
@@ -1082,9 +1767,21 @@
             const targetProfile = target.profile;
             const attrs = state.contractAttributes;
 
+            // NOUVEAU : Afficher SON profil d'abord
+            const liProfile = document.createElement("li");
+            liProfile.innerHTML = `<strong>Ton profil (à mémoriser) :</strong><br>
+                • Genre : ${player.profile.gender}<br>
+                • Accessoire : ${player.profile.accessory}<br>
+                • Métier : ${player.profile.job}<br>
+                • Caractère : ${player.profile.trait}`;
+            list.appendChild(liProfile);
+
+            const liSpacer = document.createElement("li");
+            liSpacer.innerHTML = "<hr style='border:none;border-top:1px solid rgba(148,163,184,0.2);margin:8px 0;'>";
+            list.appendChild(liSpacer);
+
             const liIntro = document.createElement("li");
-            liIntro.textContent =
-                "Tu dois éliminer une cible parmi les autres joueurs. Tu ne connais que quelques indices sur cette personne.";
+            liIntro.innerHTML = "<strong>Ta mission :</strong> Éliminer une cible parmi les autres joueurs.";
             list.appendChild(liIntro);
 
             const liHint = document.createElement("li");
@@ -1119,14 +1816,13 @@
             list.appendChild(liHint);
 
             const liWarning = document.createElement("li");
-            liWarning.textContent =
-                "Plusieurs joueurs peuvent correspondre à ces critères : observe, discute et reste discret.";
+            liWarning.innerHTML = "<strong>⚠️ ATTENTION :</strong> Si tu élimines la mauvaise personne, un de TES attributs sera révélé aux civils !";
             list.appendChild(liWarning);
 
             const tagline = document.createElement("div");
             tagline.className = "contract-tagline";
             tagline.textContent =
-                "Ne révèle jamais ton rôle. Si tu te trompes de cible, la partie peut basculer contre toi.";
+                "Reste discret, ne révèle jamais ton rôle, et déduis qui est ta cible en observant les autres.";
             profileCard.appendChild(profileTitle);
             profileCard.appendChild(list);
             profileCard.appendChild(tagline);
@@ -1153,7 +1849,7 @@
             const tagline = document.createElement("div");
             tagline.className = "contract-tagline";
             tagline.textContent =
-                "Ton but : repérer le tueur en observant les comportements et en recoupant les profils.";
+                "Ton but : repérer le tueur en observant les comportements et en recoupant les profils. Utilise le système de témoins pour interroger les autres !";
             profileCard.appendChild(tagline);
         }
 
@@ -1208,10 +1904,18 @@
         const playerIdx = state.investigationOrder[state.currentPlayerTurn];
         const player = state.players[playerIdx];
         const isHitman = player.role === 'hitman';
-        
+        const witnessDiv = $('witnessAction');
+        const alreadyUsed = !!state.witnessUses[playerIdx];
+        if (!isHitman && !alreadyUsed) {
+            witnessDiv.style.display = 'block';
+        } else {
+            witnessDiv.style.display = 'none';
+        }
+
+
         $('turnPlayerTitle').textContent = player.name;
-        
-        // Afficher profil
+
+        // Profil du joueur
         const profileDiv = $('turnPlayerProfile');
         profileDiv.innerHTML = `
             <div class="profile-title">Ton profil (${isHitman ? 'HITMAN' : 'Civil'})</div>
@@ -1221,38 +1925,43 @@
                 <li>Métier : ${player.profile.job}</li>
                 <li>Caractère : ${player.profile.trait}</li>
             </ul>
-            ${isHitman ? `<p style="font-size:0.8rem;color:var(--hitman);margin-top:6px;"><strong>Contrat :</strong> ${state.contractAttributes.map(attr => {
-                const target = state.players[state.targetIndex];
-                let val = attr === 'gender' ? target.profile.gender :
-                         attr === 'accessory' ? target.profile.accessory :
-                         attr === 'job' ? target.profile.job : target.profile.trait;
-                let label = attr === 'gender' ? 'Genre' : attr === 'accessory' ? 'Accessoire' : attr === 'job' ? 'Métier' : 'Caractère';
-                return `${label} = ${val}`;
-            }).join(' + ')}</p>` : ''}
+            ${isHitman ? `<p style="font-size:0.8rem;color:var(--hitman);margin-top:6px;">
+                <strong>Contrat :</strong>
+                ${state.contractAttributes.map(attr => {
+                    const target = state.players[state.targetIndex];
+                    let val = attr === 'gender' ? target.profile.gender :
+                            attr === 'accessory' ? target.profile.accessory :
+                            attr === 'job' ? target.profile.job : target.profile.trait;
+                    let label = attr === 'gender' ? 'Genre' :
+                            attr === 'accessory' ? 'Accessoire' :
+                            attr === 'job' ? 'Métier' : 'Caractère';
+                    return `${label} = ${val}`;
+                }).join(' + ')}
+            </p>` : ''}
         `;
-        
-        // Gestion mini-jeu
+
+        // Afficher les indices déjà gagnés par ce joueur
+        renderPlayerCluesFor(playerIdx);
+
+        // Préparer le mini‑jeu
         $('minigameContainer').style.display = 'block';
         $('clueReveal').style.display = 'none';
         $('btnEndTurn').style.display = 'none';
         $('btnBackToInvestigation').style.display = 'none';
-        
-        // Générer mini-jeu aléatoire
+        setBackgroundMood('default');   // repasse le fond au bleu
+        startTurnTimer();              // démarre les 60 s du tour
+
+        // Choix du mini‑jeu
         const r = Math.random();
         let minigameType;
         if (r < 0.34) minigameType = 'memory';
         else if (r < 0.67) minigameType = 'reflex';
         else minigameType = 'colorcode';
-        
+
         renderMinigame(minigameType);
-        
-        // Démarrer le timer de 45s pour ce tour
         startTurnTimer();
 
-        // Afficher les indices déjà gagnés par ce joueur
-        renderPlayerCluesFor(playerIdx);
-        
-        // Gestion Hitman
+        // Zone Hitman
         const hitmanDiv = $('hitmanAction');
         if (isHitman && !state.hitmanAttempted) {
             hitmanDiv.style.display = 'block';
@@ -1269,7 +1978,7 @@
         } else {
             hitmanDiv.style.display = 'none';
         }
-        
+
         showScreen('screen-player-turn');
     }
     
@@ -1277,158 +1986,240 @@
     
     function renderMinigame(type) {
         const container = $('minigameContent');
-        if (type === 'memory') {
-            currentMinigame = generateMemoryGame();
-        } else if (type === 'reflex') {
-            currentMinigame = generateReflexGame();
-        } else if (type === 'colorcode') {
-            currentMinigame = generateColorCodeGame();
-        }
         
         if (type === 'memory') {
-            container.innerHTML = `
-                <p style="font-size:0.8rem;margin-bottom:8px;">Trouve les paires ! (${currentMinigame.matches}/6)</p>
-                <div id="memoryGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto;">
-                    ${currentMinigame.cards.map((card, idx) => `
-                        <button class="memory-card" data-idx="${idx}" style="aspect-ratio:1;border:1px solid rgba(148,163,184,0.3);border-radius:8px;background:rgba(15,23,42,0.8);font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-                            ${card.revealed || card.matched ? card.icon : '?'}
-                        </button>
-                    `).join('')}
-                </div>
-                <p id="memoryStatus" style="text-align:center;margin-top:8px;font-size:0.8rem;color:var(--accent);">Clique sur 2 cartes</p>
-            `;
-            
-            // Event listeners pour cartes memory
-            container.querySelectorAll('.memory-card').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idx = parseInt(e.target.dataset.idx);
-                    handleMemoryCardClick(idx);
-                });
+            showMinigameInstructions('memory', () => {
+                renderMemoryGameActual();
             });
         } else if (type === 'reflex') {
-            // Reflex game
-            container.innerHTML = `
-                <div id="reflexArea" style="padding:20px;text-align:center;border:2px dashed rgba(148,163,184,0.3);border-radius:12px;cursor:pointer;background:rgba(15,23,42,0.5);">
-                    <p id="reflexText" style="font-size:0.9rem;margin:0;">Clique ici quand le cercle devient VERT</p>
-                    <div id="reflexCircle" style="width:60px;height:60px;border-radius:50%;background:#334155;margin:10px auto;transition:background 0.1s;"></div>
-                </div>
-                <p id="reflexResult" style="text-align:center;margin-top:8px;font-size:0.8rem;"></p>
-            `;
-            
-            const area = $('reflexArea');
-            const circle = $('reflexCircle');
-            const text = $('reflexText');
-            
-            area.addEventListener('click', () => {
-                if (currentMinigame.state === 'waiting') {
-                    // Démarrer
-                    text.textContent = "Attends le vert...";
-                    circle.style.background = '#ef4444'; // Rouge
-                    currentMinigame.state = 'ready';
-                    
-                    const delay = 1500 + Math.random() * 2000;
-                    currentMinigame.timeoutId = setTimeout(() => {
-                        circle.style.background = '#22c55e'; // Vert
-                        currentMinigame.startTime = Date.now();
-                        currentMinigame.state = 'clicked';
-                        text.textContent = "CLIQUE !";
-                    }, delay);
-                } else if (currentMinigame.state === 'clicked') {
-                    // Succès
-                    const time = Date.now() - currentMinigame.startTime;
-                    currentMinigame.reactionTime = time;
-                    currentMinigame.state = 'done';
-                    text.textContent = `Temps : ${time}ms !`;
-                    $('reflexResult').textContent = time < 300 ? "Excellent ! Indice gagné !" : time < 500 ? "Bon ! Indice gagné !" : "Lent mais accepté ! Indice gagné !";
-                    $('reflexResult').style.color = 'var(--accent)';
-                    setTimeout(rewardClue, 1000);
-                } else if (currentMinigame.state === 'ready') {
-                    // Trop tôt
-                    clearTimeout(currentMinigame.timeoutId);
-                    text.textContent = "Trop tôt ! Réessaye...";
-                    circle.style.background = '#334155';
-                    currentMinigame.state = 'waiting';
-                }
-            });
-        } else if (type === 'colorcode') {
-            container.innerHTML = `
-                <p style="font-size:0.8rem;margin-bottom:8px;">
-                    Mémorise cette séquence de symboles, puis reproduis-la dans l'ordre.
-                </p>
-                <div id="codeSequence" style="font-size:1.6rem;text-align:center;margin-bottom:10px;">
-                    ${currentMinigame.sequence.join(' ')}
-                </div>
-                <div id="codeButtons" style="display:flex;gap:8px;justify-content:center;margin-bottom:8px;">
-                    ${['🔴','🟢','🔵','🟡'].map(sym => `
-                        <button class="btn btn-ghost" data-sym="${sym}" style="padding:6px 10px;font-size:1.2rem;">${sym}</button>
-                    `).join('')}
-                </div>
-                <div style="text-align:center;font-size:0.9rem;margin-bottom:6px;">
-                    Ta réponse : <span id="codeInputDisplay">_ _ _ _</span>
-                </div>
-                <p id="codeStatus" style="text-align:center;font-size:0.8rem;color:var(--text-muted);">
-                    Clique sur les symboles dans le bon ordre.
-                </p>
-            `;
+            currentMinigame = {
+            type: 'reflex',
+            state: 'waiting', // waiting -> green -> done
+            startTime: 0
+        };
 
-            // Cacher la séquence après 2 secondes
+        const container = $('minigameContent');
+        container.innerHTML = `
+            <div id="reflexArea" style="padding:20px;text-align:center;border:2px dashed rgba(148,163,184,0.3);border-radius:12px;cursor:pointer;background:rgba(15,23,42,0.5);">
+                <p id="reflexText" style="font-size:0.9rem;margin:0 0 8px 0;">
+                    Clique sur la zone quand le cercle devient VERT.
+                </p>
+                <div id="reflexCircle" style="width:70px;height:70px;border-radius:50%;background:#334155;margin:10px auto;transition:background 0.12s;"></div>
+            </div>
+            <p id="reflexResult" style="text-align:center;margin-top:8px;font-size:0.8rem;color:var(--text-muted);">
+                Prépare-toi...
+            </p>
+        `;
+
+        const area = $('reflexArea');
+        const circle = $('reflexCircle');
+        const text = $('reflexText');
+        const result = $('reflexResult');
+
+        // Démarrer la séquence automatiquement
+        setTimeout(() => {
+            if (!currentMinigame || currentMinigame.type !== 'reflex') return;
+            currentMinigame.state = 'armed';
+            circle.style.background = '#ef4444'; // rouge
+            text.textContent = 'Attends le vert...';
+
+            const delay = 1500 + Math.random() * 2500; // 1.5–4 sec
+
             setTimeout(() => {
-                const seqDiv = $('codeSequence');
-                if (seqDiv) seqDiv.textContent = '❓ ❓ ❓ ❓';
-            }, 2000);
+                if (!currentMinigame || currentMinigame.type !== 'reflex' || currentMinigame.state !== 'armed') return;
+                currentMinigame.state = 'green';
+                currentMinigame.startTime = Date.now();
+                circle.style.background = '#22c55e'; // vert
+                text.textContent = 'CLIQUE !';
+            }, delay);
+        }, 800);
 
-            const inputDisplay = $('codeInputDisplay');
-            const status = $('codeStatus');
+        area.addEventListener('click', () => {
+            if (!currentMinigame || currentMinigame.type !== 'reflex' || currentMinigame.state === 'done') return;
 
-            container.querySelectorAll('#codeButtons button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (currentMinigame.step === 'done') return;
+            // Clic trop tôt
+            if (currentMinigame.state === 'armed') {
+                currentMinigame.state = 'done';
+                result.textContent = 'Trop tôt ! Pas d’indice pour ce tour.';
+                result.style.color = 'var(--danger)';
+                setBackgroundMood('fail'); // fond rouge
+                stopTurnTimer();
+                setTimeout(() => {
+                    $('minigameContainer').style.display = 'none';
+                    $('clueReveal').style.display = 'block';
+                    $('clueText').innerHTML = `
+                        <strong style="color:var(--danger);">⏱ Raté</strong><br>
+                        Tu as cliqué avant le vert, aucun indice gagné.
+                    `;
+                    $('btnEndTurn').style.display = 'inline-flex';
+                }, 800);
+                return;
+            }
 
-                    const sym = btn.dataset.sym;
-                    currentMinigame.userInput.push(sym);
-
-                    // Mise à jour affichage
-                    const filled = currentMinigame.userInput.concat(
-                        Array(4 - currentMinigame.userInput.length).fill('_')
-                    );
-                    inputDisplay.textContent = filled.join(' ');
-
-                    if (currentMinigame.userInput.length === 4) {
-                        // Vérification
-                        const ok = currentMinigame.userInput.every(
-                            (s, i) => s === currentMinigame.sequence[i]
-                        );
-                        currentMinigame.step = 'done';
-                        if (ok) {
-                            status.textContent = 'Parfait ! Indice gagné.';
-                            status.style.color = 'var(--accent)';
-                            setTimeout(rewardClue, 800);
-                        } else {
-                            status.textContent = 'Mauvaise séquence, pas d\'indice.';
-                            status.style.color = 'var(--danger)';
-                            // Pas d'indice, on termine le tour après une seconde
-                            setTimeout(() => {
-                                $('minigameContainer').style.display = 'none';
-                                $('btnEndTurn').style.display = 'inline-flex';
-                            }, 1000);
-                        }
-                    }
-                });
+            // Clic sur le vert
+            if (currentMinigame.state === 'green') {
+                currentMinigame.state = 'done';
+                const time = Date.now() - currentMinigame.startTime;
+                if (time > 800) {
+                    // Trop lent = pas d’indice
+                    result.textContent = `Trop lent (${time} ms). Pas d’indice pour ce tour.`;
+                    result.style.color = 'var(--danger)';
+                    setBackgroundMood('fail'); // fond rouge
+                    stopTurnTimer();
+                    setTimeout(() => {
+                        $('minigameContainer').style.display = 'none';
+                        $('clueReveal').style.display = 'block';
+                        $('clueText').innerHTML = `
+                            <strong style="color:var(--danger);">⏱ Trop lent</strong><br>
+                            Temps : ${time} ms. Aucun indice gagné.
+                        `;
+                        $('btnEndTurn').style.display = 'inline-flex';
+                    }, 900);
+                } else {
+                    // Succès = indice
+                    result.textContent = `Bravo ! Temps : ${time} ms. Indice gagné.`;
+                    result.style.color = 'var(--accent)';
+                    setTimeout(rewardClue, 800);
+                }
+            }
+        });
+        } else if (type === 'colorcode') {
+            renderColorCodeGame(); // Déjà modifié ci-dessus
+        } else if (type === 'puzzle') {
+            showMinigameInstructions('puzzle', () => {
+                renderPuzzleGameActual();
             });
         }
     }
+
+    function renderMemoryGameActual() {
+        currentMinigame = generateMemoryGame();
+        const container = $('minigameContent');
+        
+        container.innerHTML = `
+            <p style="font-size:0.8rem;margin-bottom:8px;text-align:center;">Trouve les paires ! (<span id="memoryMatches">0</span>/6)</p>
+            <div id="memoryGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto;">
+                ${currentMinigame.cards.map((card, idx) => `
+                    <button class="memory-card" data-idx="${idx}" style="aspect-ratio:1;border:2px solid rgba(148,163,184,0.3);border-radius:8px;background:rgba(15,23,42,0.8);font-size:1.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;">
+                        ${card.revealed || card.matched ? card.icon : '❓'}
+                    </button>
+                `).join('')}
+            </div>
+            <p id="memoryStatus" style="text-align:center;margin-top:8px;font-size:0.8rem;color:var(--accent);">Clique sur 2 cartes</p>
+        `;
+        
+        container.querySelectorAll('.memory-card').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                handleMemoryCardClick(idx);
+            });
+        });
+    }
+
+    function renderPuzzleGameActual() {
+        currentMinigame = generatePuzzleGame();
+        const container = $('minigameContent');
+        
+        container.innerHTML = `
+            <p style="font-size:0.8rem;margin-bottom:8px;text-align:center;">
+                Range du plus petit au plus grand ! (<span id="puzzleMoves">0</span> coups)
+            </p>
+            <div id="puzzleGrid" style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;">
+                ${currentMinigame.pieces.map((piece, idx) => `
+                    <button class="btn btn-ghost puzzle-piece" data-idx="${idx}" style="font-size:2rem;padding:16px;min-width:60px;">
+                        ${piece.icon}
+                    </button>
+                `).join('')}
+            </div>
+            <p id="puzzleStatus" style="text-align:center;font-size:0.8rem;color:var(--text-muted);">
+                Clique sur 2 pièces pour les échanger
+            </p>
+        `;
+
+        let selectedPiece = null;
+        const handlePuzzleClick = function() {
+            const idx = parseInt(this.dataset.idx);
+            
+            if (selectedPiece === null) {
+                selectedPiece = idx;
+                this.style.background = 'var(--accent-soft)';
+                this.style.borderColor = 'var(--accent)';
+                this.style.transform = 'scale(1.1)';
+            } else {
+                if (selectedPiece === idx) {
+                    // Même pièce = désélection
+                    this.style.background = '';
+                    this.style.borderColor = '';
+                    this.style.transform = 'scale(1)';
+                    selectedPiece = null;
+                    return;
+                }
+                
+                // Échanger
+                const temp = currentMinigame.pieces[selectedPiece];
+                currentMinigame.pieces[selectedPiece] = currentMinigame.pieces[idx];
+                currentMinigame.pieces[idx] = temp;
+                currentMinigame.moves++;
+                
+                // Update moves counter
+                $('puzzleMoves').textContent = currentMinigame.moves;
+                
+                // Rerender
+                const grid = $('puzzleGrid');
+                grid.innerHTML = currentMinigame.pieces.map((piece, i) => `
+                    <button class="btn btn-ghost puzzle-piece" data-idx="${i}" style="font-size:2rem;padding:16px;min-width:60px;">
+                        ${piece.icon}
+                    </button>
+                `).join('');
+                
+                // Re-attach listeners
+                selectedPiece = null;
+                grid.querySelectorAll('.puzzle-piece').forEach(b => {
+                    b.addEventListener('click', handlePuzzleClick);
+                });
+                
+                // Vérifier si résolu
+                const current = currentMinigame.pieces.map(p => p.icon);
+                const isSolved = current.every((icon, i) => icon === currentMinigame.correctOrder[i]);
+                
+                if (isSolved) {
+                    $('puzzleStatus').textContent = `✅ Résolu en ${currentMinigame.moves} coups ! Indice gagné !`;
+                    $('puzzleStatus').style.color = 'var(--success)';
+                    $('puzzleStatus').style.fontSize = '1rem';
+                    $('puzzleStatus').style.fontWeight = '600';
+                    
+                    createSimpleConfetti();
+                    
+                    // Désactiver tous les boutons
+                    grid.querySelectorAll('.puzzle-piece').forEach(b => {
+                        b.style.pointerEvents = 'none';
+                        b.style.opacity = '0.7';
+                    });
+                    
+                    setTimeout(rewardClue, 1500);
+                }
+            }
+        };
+        
+        container.querySelectorAll('.puzzle-piece').forEach(btn => {
+            btn.addEventListener('click', handlePuzzleClick);
+        });
+    }
     
     function startTurnTimer() {
-        state.turnTimeLeft = 45;
+        // Toujours nettoyer l'ancien timer avant d'en lancer un nouveau
+        stopTurnTimer();
+
+        state.turnTimeLeft = 60;
         state.clueGivenThisTurn = false;
 
         const timer = $('turnTimer');
         const value = $('turnTimerValue');
+        if (!timer || !value) return; // sécurité
+
         timer.style.display = 'flex';
         timer.classList.remove('urgent');
         value.textContent = state.turnTimeLeft;
-
-        if (state.turnTimerId) clearInterval(state.turnTimerId);
 
         state.turnTimerId = setInterval(() => {
             state.turnTimeLeft--;
@@ -1439,19 +2230,23 @@
             }
 
             if (state.turnTimeLeft <= 0) {
-                clearInterval(state.turnTimerId);
-                state.turnTimerId = null;
-                timer.style.display = 'none';
+                // Temps écoulé UNE SEULE fois
+                stopTurnTimer();
 
-                // Temps écoulé : pas d'indice
                 if (!state.clueGivenThisTurn) {
-                    $('minigameContainer').style.display = 'none';
-                    $('clueReveal').style.display = 'block';
-                    $('clueText').innerHTML = `
-                        <strong style="color:var(--danger);">⏱ Temps écoulé</strong><br>
-                        Tu n'as pas gagné d'indice pour ce tour.
-                    `;
-                    $('btnEndTurn').style.display = 'inline-flex';
+                    setBackgroundMood('fail'); // fond rouge
+
+                    // Fin du mini-jeu sans indice
+                    const clueDiv = $('clueReveal');
+                    if (clueDiv) {
+                        $('minigameContainer').style.display = 'none';
+                        clueDiv.style.display = 'block';
+                        $('clueText').innerHTML = `
+                            <strong style="color:var(--danger);">⏱ Temps écoulé</strong><br>
+                            Tu n'as pas gagné d'indice pour ce tour.
+                        `;
+                        $('btnEndTurn').style.display = 'inline-flex';
+                    }
                 }
             }
         }, 1000);
@@ -1463,8 +2258,10 @@
             clearInterval(state.turnTimerId);
             state.turnTimerId = null;
         }
-        timer.style.display = 'none';
-        timer.classList.remove('urgent');
+        if (timer) {
+            timer.style.display = 'none';
+            timer.classList.remove('urgent');
+        }
     }
     
     function handleMemoryCardClick(idx) {
@@ -1510,34 +2307,44 @@
     }
     
     function rewardClue() {
-        state.clueGivenThisTurn = true;
-        stopTurnTimer();
-        
         const playerIdx = state.investigationOrder[state.currentPlayerTurn];
         const clue = generateClue(playerIdx);
-        
+
+        state.clueGivenThisTurn = true;
+        stopTurnTimer();
+        setBackgroundMood('success');
+
         if (clue) {
-            state.journal.push({
+            const entry = {
                 round: state.currentRound,
                 player: state.players[playerIdx].name,
-                ...clue
-            });
-            
-            const clueDiv = $('clueReveal');
-            clueDiv.style.display = 'block';
-            const typeLabel = clue.isFalse ? '⚠️ INDICE (peut-être faux)' : '✅ INDICE VÉRIFIÉ';
+                ...clue,
+                public: false // par défaut PRIVÉ
+            };
+            state.journal.push(entry);
+            state.lastClueIndex = state.journal.length - 1;
+
+            // 1) On remplit le texte de l’indice
             $('clueText').innerHTML = `
-                <strong>${typeLabel}</strong><br>
+                <strong>${clue.isFalse ? '⚠️ INDICE (peut-être faux)' : '✅ INDICE VÉRIFIÉ'}</strong><br>
                 ${clue.targetPlayer} : ${clue.attribute} = ${clue.value}
             `;
+
+            // 2) Puis on rend visibles la carte + les boutons + le bouton fin de tour
+            $('clueReveal').style.display = 'block';
+            $('clueActionsRow').style.display = 'flex';
+            $('btnEndTurn').style.display = 'inline-flex';
         }
-        
+
         $('minigameContainer').style.display = 'none';
         $('btnEndTurn').style.display = 'inline-flex';
+        $('clueActionsRow').style.display = 'flex'; // si tu as ajouté la ligne de boutons Révéler / Garder
     }
+
     
     function endPlayerTurn() {
         stopTurnTimer();
+        setBackgroundMood('default'); // retour au bleu
         
         state.currentPlayerTurn++;
         
@@ -1548,29 +2355,141 @@
         } else {
             // Joueur suivant
             updateInvestigationScreen();
+            setBackgroundMood('default');
             showScreen('screen-investigation');
         }
     }
     
     function updateJournal() {
-        const container = $('journalEntries');
-        const roundEntries = state.journal.filter(e => e.round === state.currentRound);
-        
-        if (roundEntries.length === 0) {
-            container.innerHTML = '<p class="hint" style="text-align:center;padding:20px;">Aucun indice découvert ce round...</p>';
-        } else {
-            container.innerHTML = roundEntries.map(entry => `
-                <div class="profile-card" style="margin-bottom:8px;padding:10px;">
-                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px;">Découvert par ${entry.player}</div>
-                    <div style="font-size:0.85rem;">
-                        <span style="color:${entry.isFalse ? 'var(--danger)' : 'var(--accent)'};font-weight:600;">
-                            ${entry.isFalse ? '⚠️ ' : '✅ '}${entry.targetPlayer}
-                        </span> : ${entry.attribute} = ${entry.value}
-                    </div>
-                </div>
-            `).join('');
-        }
+        renderJournalList();
+        renderDeductionTable();
     }
+
+    function renderJournalList() {
+        const container = $('journalEntries');
+        
+        
+        if (state.journal.length === 0) {
+            container.innerHTML = '<p class="hint" style="text-align: center; padding: 20px;">Aucun indice pour le moment...</p>';
+            return;
+        }
+        
+        // Appliquer le filtre
+        let filteredJournal = state.journal.filter(e => e.public);
+        if (state.currentJournalFilter !== 'all') {
+            filteredJournal = state.journal.filter(j => {
+                const attrKey = j.attributeKey || 
+                            (j.attribute === 'Genre' ? 'gender' :
+                            j.attribute === 'Accessoire' ? 'accessory' :
+                            j.attribute === 'Métier' ? 'job' : 'trait');
+                return attrKey === state.currentJournalFilter;
+            });
+        }
+        
+        container.innerHTML = filteredJournal.map((entry, idx) => {
+            const reliabilityIcon = entry.reliability === 'verified' ? '✓' :
+                                entry.reliability === 'claimed' ? '⚠' : '✗';
+            const reliabilityClass = entry.reliability === 'verified' ? 'reliability-verified' :
+                                entry.reliability === 'claimed' ? 'reliability-claimed' : 'reliability-suspicious';
+            
+            let description = '';
+            if (entry.type === 'penalty' || entry.isPenalty) {
+                description = `🚨 <strong>PÉNALITÉ</strong> : ${entry.attribute} du Hitman révélé = ${entry.value}`;
+            } else if (entry.type === 'witness') {
+                description = `🗣️ <strong>${entry.player}</strong> a interrogé <strong>${entry.targetPlayer}</strong> : ${entry.attribute} = ${entry.value}`;
+            } else if (entry.type === 'fake_planted') {
+                description = `🎭 Un indice suspect a été planté : <strong>${entry.targetPlayer}</strong> - ${entry.attribute} = ${entry.value}`;
+            } else {
+                description = `<strong>${entry.player}</strong> découvre : <strong>${entry.targetPlayer}</strong> - ${entry.attribute} = ${entry.value}`;
+            }
+            
+            return `
+                <div class="clue-card">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+                        <span style="font-size:0.7rem;color:var(--text-muted);">Round ${entry.round}</span>
+                        <span class="${reliabilityClass}" style="font-size:0.9rem;">${reliabilityIcon}</span>
+                    </div>
+                    <div style="font-size:0.85rem;">${description}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderDeductionTable() {
+        const grid = $('deductionGrid');
+        
+        // En-têtes
+        const headers = ['Joueur', 'Genre', 'Accessoire', 'Métier', 'Caractère'];
+        
+        // Créer une matrice de données
+        const deductionData = {};
+        state.players.forEach(p => {
+            if (!state.eliminatedPlayers.includes(p.id)) {
+                deductionData[p.id] = {
+                    name: p.name,
+                    gender: {},
+                    accessory: {},
+                    job: {},
+                    trait: {}
+                };
+            }
+        });
+        
+        // Remplir avec les indices du journal
+        state.journal.forEach(entry => {
+            if (!deductionData[entry.targetIndex]) return;
+            
+            const attrKey = entry.attributeKey || 
+                        (entry.attribute === 'Genre' ? 'gender' :
+                        entry.attribute === 'Accessoire' ? 'accessory' :
+                        entry.attribute === 'Métier' ? 'job' : 'trait');
+            
+            if (!deductionData[entry.targetIndex][attrKey][entry.value]) {
+                deductionData[entry.targetIndex][attrKey][entry.value] = {
+                    count: 0,
+                    reliability: entry.reliability
+                };
+            }
+            deductionData[entry.targetIndex][attrKey][entry.value].count++;
+        });
+        
+        let html = '';
+        
+        // En-têtes
+        headers.forEach((h, idx) => {
+            html += `<div class="deduction-cell deduction-header ${idx === 0 ? 'deduction-player' : ''}">${h}</div>`;
+        });
+        
+        // Lignes joueurs
+        Object.values(deductionData).forEach(player => {
+            html += `<div class="deduction-cell deduction-player">${player.name}</div>`;
+            
+            ['gender', 'accessory', 'job', 'trait'].forEach(attr => {
+                const values = Object.entries(player[attr]);
+                if (values.length === 0) {
+                    html += `<div class="deduction-cell">?</div>`;
+                } else if (values.length === 1) {
+                    const [val, data] = values[0];
+                    const icon = data.reliability === 'verified' ? '✓' :
+                            data.reliability === 'claimed' ? '⚠' : '✗';
+                    const colorClass = data.reliability === 'verified' ? 'reliability-verified' :
+                                    data.reliability === 'claimed' ? 'reliability-claimed' : 'reliability-suspicious';
+                    html += `<div class="deduction-cell"><span class="${colorClass}">${icon}</span> ${val}</div>`;
+                } else {
+                    // Plusieurs valeurs contradictoires
+                    const summary = values.map(([val, data]) => {
+                        const icon = data.reliability === 'verified' ? '✓' :
+                                data.reliability === 'claimed' ? '⚠' : '✗';
+                        return `${icon}${val}`;
+                    }).join(' / ');
+                    html += `<div class="deduction-cell" style="font-size:0.65rem;">${summary}</div>`;
+                }
+            });
+        });
+        
+        grid.innerHTML = html;
+    }
+
     
     function renderPlayerCluesFor(playerIdx) {
         const container = $('playerClues');
@@ -1718,28 +2637,51 @@
         } else {
             const eliminated = state.players[eliminatedId];
             state.eliminatedPlayers.push(eliminatedId);
-            
+
+            const isHitman = eliminatedId === state.hitmanIndex;
+            const isTarget = eliminatedId === state.targetIndex;
+
             $('resolutionSubtitle').textContent = `${eliminated.name} a été éliminé !`;
             elimDiv.style.display = 'block';
-            
-            const isHitman = eliminated.role === 'hitman';
+
             elimCard.innerHTML = `
                 <div class="profile-title" style="color:${isHitman ? 'var(--danger)' : 'var(--text)'};">
                     ${eliminated.name} était ${isHitman ? 'le HITMAN !' : 'un CIVIL'}
                 </div>
                 <p style="font-size:0.85rem;margin:6px 0;">
-                    ${isHitman ? 'Les civils ont gagné !' : 'Les civils ont fait une erreur...'}
+                    ${
+                        isHitman
+                            ? 'Les civils ont voté juste !'
+                            : isTarget
+                                ? 'C\'était la cible du Hitman...'
+                                : 'Les civils ont fait une erreur.'
+                    }
                 </p>
-                ${!isHitman ? `
+                ${
+                    !isHitman && !isTarget
+                        ? `
                 <div style="margin-top:8px;padding:8px;background:rgba(249,115,115,0.1);border-radius:6px;">
                     <p style="font-size:0.8rem;margin:0;color:var(--danger);">
                         ⚠️ Le Hitman peut continuer à éliminer des cibles !
                     </p>
-                </div>` : ''}
+                </div>`
+                        : ''
+                }
             `;
+
+            // Marquer la victoire selon qui a été éliminé
+            if (isHitman) {
+                state.gameOver = true;
+                state.winner = 'civils';
+            } else if (isTarget) {
+                state.hitmanSuccess = true;    // sa cible est éliminée par vote
+                state.gameOver = true;
+                state.winner = 'hitman';
+            }
         }
-        
+
         showScreen('screen-resolution');
+
     }
     
     function nextRound() {
@@ -1819,8 +2761,78 @@
         
         showScreen('screen-end');
     }
+    // NOUVELLE FONCTION : Afficher instructions avant le mini-jeu
+    function showMinigameInstructions(type, callback) {
+        const container = $('minigameContent');
+        
+        const instructions = {
+            memory: {
+                title: "🧠 Jeu de Mémoire",
+                desc: "Trouve toutes les paires de cartes identiques",
+                howToWin: "Associe les 6 paires le plus rapidement possible",
+                icon: "🎴"
+            },
+            reflex: {
+                title: "⚡ Test de Réflexe",
+                desc: "Clique dès que le cercle devient vert !",
+                howToWin: "Réagis en moins de 800ms pour gagner",
+                icon: "🎯"
+            },
+            colorcode: {
+                title: "🎨 Code Couleur",
+                desc: "Mémorise la séquence puis reproduis-la",
+                howToWin: "Retrouve l'ordre exact des 4 symboles",
+                icon: "🧩"
+            },
+            puzzle: {
+                title: "🔢 Puzzle Numérique",
+                desc: "Range les chiffres dans l'ordre croissant",
+                howToWin: "Du plus petit (①) au plus grand (⑥)",
+                icon: "🎲"
+            }
+        };
+        
+        const info = instructions[type];
+        
+        container.innerHTML = `
+            <div style="text-align:center;padding:20px;">
+                <div style="font-size:3rem;margin-bottom:12px;">${info.icon}</div>
+                <h3 style="margin:0 0 8px 0;font-size:1.1rem;">${info.title}</h3>
+                <p style="margin:0 0 12px 0;font-size:0.85rem;color:var(--text-muted);">
+                    ${info.desc}
+                </p>
+                <div style="background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:10px;margin-bottom:16px;">
+                    <p style="margin:0;font-size:0.8rem;color:var(--accent);">
+                        <strong>🎯 Pour gagner :</strong> ${info.howToWin}
+                    </p>
+                </div>
+                <button class="btn btn-primary btn-full" id="btnStartMinigame">
+                    C'est parti ! 🚀
+                </button>
+            </div>
+        `;
+        
+        $('btnStartMinigame').addEventListener('click', callback);
+    }
 
     // ========== EVENT LISTENERS ==========
+    $('btnSkipVote').addEventListener('click', () => {
+        // On vide les votes éventuels
+        state.votes = {};
+
+        // Texte de résolution spécial
+        $('resolutionSubtitle').textContent =
+            "Les joueurs ont choisi de ne pas éliminer ce round.";
+
+        const container = $('voteResults');
+        container.innerHTML =
+            '<p class="hint" style="text-align:center;margin-top:8px;">Aucun vote enregistré ce round.</p>';
+
+        const elimDiv = $('eliminationReveal');
+        if (elimDiv) elimDiv.style.display = 'none';
+
+        showScreen('screen-resolution');
+    });
 
     $('btnSetupNext').addEventListener('click', () => {
         const count = parseInt($('playerCount').value, 10);
@@ -1831,6 +2843,20 @@
 
     $('btnNamesBack').addEventListener('click', () => {
         showScreen('screen-setup');
+    });
+
+    $('btnRevealClue').addEventListener('click', () => {
+        if (state.lastClueIndex == null) return;
+        const entry = state.journal[state.lastClueIndex];
+        if (!entry) return;
+
+        entry.public = true;                 // devient visible dans le journal
+        $('clueActionsRow').style.display = 'none';
+    });
+
+    $('btnKeepClue').addEventListener('click', () => {
+        // On ne modifie PAS entry.public (reste false = privé)
+        $('clueActionsRow').style.display = 'none';
     });
 
     $('btnStartGame').addEventListener('click', () => {
@@ -1872,7 +2898,11 @@
     $('btnBackToInvestigation').addEventListener('click', () => {
         showScreen('screen-investigation');
     });
+    
+    // ========== MODIFICATION DANS btnAttemptKill (révélation d'attribut) ==========
+    // Remplacer la section existante par celle-ci :
 
+    // DANS LE LISTENER btnAttemptKill :
     $('btnAttemptKill').addEventListener('click', () => {
         const select = $('hitmanTargetSelect');
         const targetIdx = parseInt(select.value);
@@ -1894,19 +2924,33 @@
                 </div>
             `;
         } else {
-            // Mauvaise cible = révélation d'un indice sur le Hitman
+            // ========== CORRECTION CRITIQUE ICI ==========
+            // Révélation d'UN attribut du HITMAN (pas de la cible !)
             const hitman = state.players[state.hitmanIndex];
             const attrs = ['gender', 'accessory', 'job', 'trait'];
             const revealedAttr = attrs[Math.floor(Math.random() * attrs.length)];
+            
             let label, val;
             switch(revealedAttr) {
-                case 'gender': label = 'Genre'; val = hitman.profile.gender; break;
-                case 'accessory': label = 'Accessoire'; val = hitman.profile.accessory; break;
-                case 'job': label = 'Métier'; val = hitman.profile.job; break;
-                case 'trait': label = 'Caractère'; val = hitman.profile.trait; break;
+                case 'gender': 
+                    label = 'Genre'; 
+                    val = hitman.profile.gender;  // SON PROFIL
+                    break;
+                case 'accessory': 
+                    label = 'Accessoire'; 
+                    val = hitman.profile.accessory;
+                    break;
+                case 'job': 
+                    label = 'Métier'; 
+                    val = hitman.profile.job;
+                    break;
+                case 'trait': 
+                    label = 'Caractère'; 
+                    val = hitman.profile.trait;
+                    break;
             }
             
-            // Ajouter au journal comme indice public
+            // Ajouter au journal comme indice public VÉRIFIÉ
             state.journal.push({
                 round: state.currentRound,
                 player: 'Système',
@@ -1914,16 +2958,25 @@
                 targetPlayer: hitman.name,
                 targetIndex: state.hitmanIndex,
                 attribute: label,
+                attributeKey: revealedAttr,
                 value: val,
                 isFalse: false,
-                isPenalty: true
+                isPenalty: true,
+                reliability: 'verified', // FIABILITÉ MAXIMALE
+                public: false
             });
             
             $('hitmanAction').innerHTML = `
-                <div class="card" style="border-color:rgba(249,115,115,0.6);">
+                <div class="card" style="border-color:rgba(249,115,115,0.6);background:radial-gradient(circle at top left, rgba(249,115,115,0.15), transparent 50%);">
                     <div class="card-title" style="color:var(--danger);">❌ Mauvaise cible !</div>
-                    <p style="font-size:0.85rem;">Tu as éliminé un civil. Un indice sur ton identité a été révélé à tous :</p>
-                    <p style="font-size:0.9rem;color:var(--danger);margin-top:6px;"><strong>${label} = ${val}</strong></p>
+                    <p style="font-size:0.85rem;">Tu as éliminé ${state.players[targetIdx].name}, qui n'était pas ta cible.</p>
+                    <p style="font-size:0.85rem;margin-top:8px;"><strong>🚨 PÉNALITÉ :</strong> Un de TES attributs a été révélé à tous les joueurs !</p>
+                    <div style="background:var(--danger);color:#000;padding:12px;border-radius:8px;margin-top:8px;font-weight:600;">
+                        ${label} du Hitman = ${val}
+                    </div>
+                    <p style="font-size:0.75rem;margin-top:8px;color:var(--text-muted);">
+                        Cet indice apparaîtra dans le journal avec le marqueur <span style="color:var(--success);">✓ VÉRIFIÉ</span>
+                    </p>
                 </div>
             `;
         }
@@ -1932,6 +2985,60 @@
         $('minigameContainer').style.display = 'none';
         $('btnEndTurn').style.display = 'inline-flex';
     });
+
+    $('btnUseWitness').addEventListener('click', () => {
+        const playerIdx = state.investigationOrder[state.currentPlayerTurn];
+        const player = state.players[playerIdx];
+
+        if (state.witnessUses[playerIdx]) {
+            alert('Tu as déjà utilisé ton témoin.');
+            return;
+        }
+
+        state.witnessUses[playerIdx] = true;
+
+        let clue = generateClue(playerIdx);
+        if (!clue) {
+            alert('Aucun témoin disponible pour ce tour.');
+            return;
+        }
+
+        // Témoin = indice TOUJOURS vrai
+        clue = {
+            ...clue,
+            isFalse: false,
+            reliability: 'verified',
+            type: 'witness'
+        };
+
+        state.clueGivenThisTurn = true;
+        stopTurnTimer();
+        setBackgroundMood('success');
+
+        const entry = {
+            round: state.currentRound,
+            player: player.name,
+            ...clue,
+            public: false // PRIVÉ tant qu’il ne l’a pas révélé
+        };
+        state.journal.push(entry);
+        state.lastClueIndex = state.journal.length - 1;
+
+        // UI
+        $('minigameContainer').style.display = 'none';
+        $('witnessAction').style.display = 'none';
+
+        const clueBox = $('clueReveal');
+        clueBox.style.display = 'block';
+        $('clueText').innerHTML = `
+            <strong>👁️ Témoignage fiable</strong><br>
+            ${clue.targetPlayer} : ${clue.attribute} = ${clue.value}
+        `;
+
+        $('clueActionsRow').style.display = 'flex'; // boutons Révéler / Garder
+        $('btnEndTurn').style.display = 'inline-flex';
+    });
+
 
     $('btnGoToVote').addEventListener('click', () => {
         // Réinitialiser l'ordre de vote
@@ -2019,8 +3126,323 @@
         state.voteOrder = null;
         state.currentVoter = 0;
         
+        // NOUVEAU v2.0
+        state.hitmanAbilities = {
+            fakeClueUsed: false,
+            fakeCluesRemaining: 1
+        };
+        state.currentJournalFilter = 'all';
+        state.currentJournalView = 'list';
+        state.witnessAsked = false;
+        state.witnessAnswer = null;
+        
         $('playerCount').value = '3';
         showScreen('screen-setup');
+    }
+    
+    // Choix d'action (Mini-jeu ou Témoin)
+    $('btnActionMinigame').addEventListener('click', () => {
+        startMinigameDirectly();
+    });
+
+    $('btnActionWitness').addEventListener('click', () => {
+        $('actionChoice').style.display = 'none';
+        $('witnessSystem').style.display = 'block';
+        
+        // Remplir la liste des joueurs
+        const playerIdx = state.investigationOrder[state.currentPlayerTurn];
+        const select = $('witnessTargetSelect');
+        select.innerHTML = '<option value="">-- Choisir un joueur --</option>';
+        
+        state.players.forEach((p, idx) => {
+            if (idx !== playerIdx && !state.eliminatedPlayers.includes(idx)) {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = p.name;
+                select.appendChild(opt);
+            }
+        });
+    });
+
+    // Poser une question de témoin
+    $('btnAskWitness').addEventListener('click', () => {
+        const targetIdx = parseInt($('witnessTargetSelect').value);
+        const questionAttr = $('witnessQuestionSelect').value;
+        
+        if (isNaN(targetIdx) || !questionAttr) {
+            alert('Choisis un joueur et une question !');
+            return;
+        }
+        
+        const target = state.players[targetIdx];
+        let attrLabel, attrValue;
+        
+        switch(questionAttr) {
+            case 'gender': attrLabel = 'Genre'; attrValue = target.profile.gender; break;
+            case 'accessory': attrLabel = 'Accessoire'; attrValue = target.profile.accessory; break;
+            case 'job': attrLabel = 'Métier'; attrValue = target.profile.job; break;
+            case 'trait': attrLabel = 'Caractère'; attrValue = target.profile.trait; break;
+        }
+        
+        // Afficher la réponse
+        $('witnessSystem').style.display = 'none';
+        const answerDiv = $('witnessAnswer');
+        answerDiv.style.display = 'block';
+        answerDiv.innerHTML = `
+            <div class="card" style="border-color: rgba(56,189,248,0.6);">
+                <div class="profile-title">💬 Réponse de ${target.name}</div>
+                <p style="font-size:0.9rem;margin:6px 0;">
+                    <strong>${attrLabel} :</strong> ${attrValue}
+                </p>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+                    <span class="reliability-claimed">⚠</span> Cet indice est déclaré (le joueur peut mentir, mais c'est risqué).
+                </p>
+            </div>
+        `;
+        
+        // Ajouter au journal
+        const playerIdx = state.investigationOrder[state.currentPlayerTurn];
+        const clue = {
+            round: state.currentRound,
+            player: state.players[playerIdx].name,
+            type: 'witness',
+            targetPlayer: target.name,
+            targetIndex: targetIdx,
+            attribute: attrLabel,
+            attributeKey: questionAttr,
+            value: attrValue,
+            isFalse: false,
+            reliability: 'claimed'
+        };
+        
+        state.journal.push(clue);
+        state.players[playerIdx].clues.push(clue);
+        state.witnessAsked = true;
+        
+        // Afficher le bouton terminer
+        $('btnEndTurn').style.display = 'inline-flex';
+    });
+
+    // Capacité Hitman : Planter un faux indice
+    $('btnPlantFakeClue').addEventListener('click', () => {
+        if (state.hitmanAbilities.fakeClueUsed) {
+            alert('Tu as déjà utilisé cette capacité !');
+            return;
+        }
+        
+        // Choisir un joueur aléatoire (pas le Hitman)
+        const otherPlayers = state.players
+            .map((p, idx) => idx)
+            .filter(idx => idx !== state.hitmanIndex && !state.eliminatedPlayers.includes(idx));
+        
+        if (otherPlayers.length === 0) return;
+        
+        const targetIdx = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+        const target = state.players[targetIdx];
+        
+        // Choisir un attribut et une valeur FAUSSE
+        const attrs = ['gender', 'accessory', 'job', 'trait'];
+        const attr = attrs[Math.floor(Math.random() * attrs.length)];
+        
+        let attrLabel, correctValue, possibleValues, fakeValue;
+        
+        switch(attr) {
+            case 'gender': 
+                attrLabel = 'Genre'; 
+                correctValue = target.profile.gender;
+                possibleValues = genders;
+                break;
+            case 'accessory': 
+                attrLabel = 'Accessoire'; 
+                correctValue = target.profile.accessory;
+                possibleValues = accessories;
+                break;
+            case 'job': 
+                attrLabel = 'Métier'; 
+                correctValue = target.profile.job;
+                possibleValues = jobs;
+                break;
+            case 'trait': 
+                attrLabel = 'Caractère'; 
+                correctValue = target.profile.trait;
+                possibleValues = traits;
+                break;
+        }
+        
+        const otherValues = possibleValues.filter(v => v !== correctValue);
+        fakeValue = otherValues[Math.floor(Math.random() * otherValues.length)];
+        
+        // Ajouter au journal comme indice "suspect" mais sans révéler que c'est le Hitman
+        const fakeClue = {
+            round: state.currentRound,
+            player: 'Système',
+            type: 'fake_planted',
+            targetPlayer: target.name,
+            targetIndex: targetIdx,
+            attribute: attrLabel,
+            attributeKey: attr,
+            value: fakeValue,
+            isFalse: true,
+            reliability: 'suspicious'
+        };
+        
+        state.journal.push(fakeClue);
+        state.hitmanAbilities.fakeClueUsed = true;
+        
+        // Confirmation
+        alert(`✅ Faux indice planté !\n\n"${target.name} - ${attrLabel}: ${fakeValue}" a été ajouté au journal.\n\nLes civils ne sauront pas que c'est faux !`);
+        
+        updateHitmanAbilities();
+    });
+
+    // Filtres du journal
+    $('journalFilters').addEventListener('click', (e) => {
+        if (!e.target.classList.contains('filter-btn')) return;
+        
+        // Retirer active de tous
+        $('journalFilters').querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Activer celui cliqué
+        e.target.classList.add('active');
+        state.currentJournalFilter = e.target.dataset.filter;
+        
+        renderJournalList();
+    });
+
+    // Basculer entre vue liste et vue tableau
+    $('btnViewList').addEventListener('click', () => {
+        $('btnViewList').classList.add('active');
+        $('btnViewTable').classList.remove('active');
+        $('journalListView').style.display = 'block';
+        $('journalTableView').style.display = 'none';
+        state.currentJournalView = 'list';
+    });
+
+    $('btnViewTable').addEventListener('click', () => {
+        $('btnViewList').classList.remove('active');
+        $('btnViewTable').classList.add('active');
+        $('journalListView').style.display = 'none';
+        $('journalTableView').style.display = 'block';
+        state.currentJournalView = 'table';
+    });
+
+    // ========== 7. NOUVEAU : GESTION DES CAPACITÉS HITMAN ==========
+    // AJOUTER cette fonction
+
+    function updateHitmanAbilities() {
+        const fakeClueBtn = $('btnPlantFakeClue');
+        const fakeClueAbility = $('fakeClueAbility');
+        
+        if (state.hitmanAbilities.fakeClueUsed) {
+            fakeClueBtn.disabled = true;
+            fakeClueBtn.style.opacity = '0.5';
+            fakeClueAbility.classList.add('used');
+        } else {
+            fakeClueBtn.disabled = false;
+            fakeClueBtn.style.opacity = '1';
+            fakeClueAbility.classList.remove('used');
+        }
+    }
+    
+    // ========== 8. NOUVEAU : DÉMARRER MINI-JEU DIRECTEMENT ==========
+    // AJOUTER cette fonction
+
+    function startMinigameDirectly() {
+        $('actionChoice').style.display = 'none';
+        $('minigameContainer').style.display = 'block';
+        
+        // Générer mini-jeu aléatoire (4 types maintenant)
+        const r = Math.random();
+        let minigameType;
+        if (r < 0.25) minigameType = 'memory';
+        else if (r < 0.5) minigameType = 'reflex';
+        else if (r < 0.75) minigameType = 'colorcode';
+        else minigameType = 'puzzle';
+        
+        renderMinigame(minigameType);
+        startTurnTimer();
+    }
+    // ========== FONCTION CONFETTIS SIMPLE (SANS THREE.JS) ==========
+
+    function createSimpleConfetti() {
+        const colors = ['#38bdf8', '#22c55e', '#facc15', '#f97373', '#a78bfa'];
+        
+        for (let i = 0; i < 30; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.cssText = `
+                position: fixed;
+                width: 8px;
+                height: 8px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                top: 50%;
+                left: 50%;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+            `;
+            
+            document.body.appendChild(confetti);
+            
+            const angle = (Math.random() * 360) * (Math.PI / 180);
+            const velocity = Math.random() * 400 + 200;
+            const vx = Math.cos(angle) * velocity;
+            const vy = Math.sin(angle) * velocity - 300;
+            
+            animateConfetti(confetti, vx, vy);
+        }
+    }
+
+    function animateConfetti(el, vx, vy) {
+        let x = 0, y = 0;
+        const gravity = 1000; // px/s²
+        let startTime = Date.now();
+        
+        function update() {
+            const elapsed = (Date.now() - startTime) / 1000;
+            
+            x = vx * elapsed;
+            y = vy * elapsed + 0.5 * gravity * elapsed * elapsed;
+            
+            el.style.transform = `translate(${x}px, ${y}px)`;
+            el.style.opacity = Math.max(0, 1 - elapsed / 1.5);
+            
+            if (elapsed < 1.5) {
+                requestAnimationFrame(update);
+            } else {
+                el.remove();
+            }
+        }
+        
+        update();
+    }
+
+    // ========== 9. NOUVEAU : AFFICHAGE DES INDICES DU JOUEUR ==========
+    // AJOUTER cette fonction
+
+    function renderPlayerCluesFor(playerIdx) {
+        const player = state.players[playerIdx];
+        const cluesDiv = $('playerClues');
+        const cluesList = $('playerCluesList');
+        
+        if (player.clues && player.clues.length > 0) {
+            cluesDiv.style.display = 'block';
+            cluesList.innerHTML = player.clues.map(c => {
+                const reliabilityIcon = c.reliability === 'verified' ? '✓' :
+                                    c.reliability === 'claimed' ? '⚠' : '✗';
+                const reliabilityClass = c.reliability === 'verified' ? 'reliability-verified' :
+                                    c.reliability === 'claimed' ? 'reliability-claimed' : 'reliability-suspicious';
+                return `
+                    <div class="clue-card">
+                        <span class="${reliabilityClass}">${reliabilityIcon}</span>
+                        <strong>${c.targetPlayer}</strong> : ${c.attribute} = ${c.value}
+                    </div>
+                `;
+            }).join('');
+        } else {
+            cluesDiv.style.display = 'none';
+        }
     }
 
     // Enregistrement du service worker pour la PWA
@@ -2035,7 +3457,172 @@
                 });
         });
     }
-    
+    let bg3dMaterial = null;
+    // ===== Fond 3D léger avec particules =====
+    function initBackground3D() {
+        if (typeof THREE === 'undefined') return;
+
+        const container = document.getElementById('bg3d-container');
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
+        camera.position.z = 8;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Particules
+        const particlesCount = 120;
+        const positions = new Float32Array(particlesCount * 3);
+        for (let i = 0; i < particlesCount * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 18;
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const material = new THREE.PointsMaterial({
+            size: 0.06,
+            color: 0x38bdf8, // bleu par défaut
+            transparent: true,
+            opacity: 0.7
+        });
+        window.bg3dMaterial = material; // juste après avoir créé ton PointsMaterial
+
+        // garder une référence globale
+        bg3dMaterial = material;
+
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+
+        function onResize() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            renderer.setSize(w, h);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+        }
+        window.addEventListener('resize', onResize);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            points.rotation.y += 0.0008;
+            points.rotation.x += 0.0003;
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    }
+    function setBackgroundMood(mode) {
+        if (!bg3dMaterial) return;
+
+        // couleurs en hex
+        const BLUE = 0x38bdf8;
+        const GREEN = 0x22c55e;
+        const RED = 0xef4444;
+
+        if (mode === 'success') {
+            bg3dMaterial.color.setHex(GREEN);
+        } else if (mode === 'fail') {
+            bg3dMaterial.color.setHex(RED);
+        } else {
+            // 'default' ou tout autre
+            bg3dMaterial.color.setHex(BLUE);
+        }
+    }
+    window.bg3dMaterial = window.bg3dMaterial || null;
+    function setBackgroundMood(mode) {
+        const body = document.body;
+        body.classList.remove('mood-default', 'mood-success', 'mood-fail');
+
+        if (mode === 'success') {
+            body.classList.add('mood-success');
+        } else if (mode === 'fail') {
+            body.classList.add('mood-fail');
+        } else {
+            body.classList.add('mood-default');
+        }
+
+        // Si tu as un matériau de particules Three.js, adapte aussi sa couleur
+        if (window.bg3dMaterial) {
+            const BLUE  = 0x38bdf8;
+            const GREEN = 0x22c55e;
+            const RED   = 0xef4444;
+
+            if (mode === 'success') {
+                window.bg3dMaterial.color.setHex(GREEN);
+            } else if (mode === 'fail') {
+                window.bg3dMaterial.color.setHex(RED);
+            } else {
+                window.bg3dMaterial.color.setHex(BLUE);
+            }
+        }
+    }
+    // optionnel : exposer sur window pour débugger dans la console
+    window.setBackgroundMood = setBackgroundMood;
+    // Lancer le fond 3D au chargement
+    window.addEventListener('load', initBackground3D);
+
+    function handleBonusAnswer(isCorrect, chosenValue, correctValue, targetPlayerIndex) {
+        const playerIdx = state.investigationOrder[state.currentPlayerTurn];
+        const player = state.players[playerIdx];
+        const target = state.players[targetPlayerIndex];
+
+        if (isCorrect) {
+            // Indice bonus FIABLE
+            const entry = {
+                round: state.currentRound,
+                player: player.name,
+                targetPlayer: target.name,
+                targetIndex: targetPlayerIndex,
+                attribute: currentBonusAttributeLabel,
+                value: correctValue,
+                isFalse: false,
+                reliability: 'verified',
+                type: 'bonus_correct',
+                public: false
+            };
+            state.journal.push(entry);
+            state.lastClueIndex = state.journal.length - 1;
+
+            // UI : message de succès + attribut (tu peux garder ton texte actuel)
+            $('clueReveal').style.display = 'block';
+            $('clueText').innerHTML = `
+                <strong>✅ Correct</strong><br>
+                ${target.name} : ${currentBonusAttributeLabel} = ${correctValue}
+            `;
+            $('clueActionsRow').style.display = 'flex';
+            $('btnEndTurn').style.display = 'inline-flex';
+
+        } else {
+            // On enregistre SEULEMENT la MAUVAISE déclaration comme indice suspect
+            const entry = {
+                round: state.currentRound,
+                player: player.name,
+                targetPlayer: target.name,
+                targetIndex: targetPlayerIndex,
+                attribute: currentBonusAttributeLabel,
+                value: chosenValue, // sa réponse (fausse)
+                isFalse: true,
+                reliability: 'suspicious',
+                type: 'bonus_wrong',
+                public: false
+            };
+            state.journal.push(entry);
+            state.lastClueIndex = state.journal.length - 1;
+
+            // UI : message générique, SANS montrer la bonne réponse
+            $('clueReveal').style.display = 'block';
+            $('clueText').innerHTML = `
+                <strong style="color:var(--danger);">❌ Incorrect</strong><br>
+                Ta réponse est enregistrée comme indice suspect dans le journal.
+            `;
+            $('clueActionsRow').style.display = 'flex';
+            $('btnEndTurn').style.display = 'inline-flex';
+        }
+    }
 })();
 </script>
 </body>
